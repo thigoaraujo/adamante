@@ -80,6 +80,14 @@
     return origem === 'autodeclarado' ? Math.round(xpBase * 0.7) : xpBase;
   }
 
+  // ── §11.4 recompensa da missão épica: XP escala com o prazo, 800 a 2.000 ──
+  function xpEpica(dias) {
+    var d = Math.max(15, Math.min(90, dias));
+    return Math.round((800 + (d - 15) / 75 * 1200) / 10) * 10;
+  }
+  // §11.4 prazo válido: entre 15 e 90 dias
+  function prazoEpicaValido(dias) { return dias >= 15 && dias <= 90; }
+
   // ── §10 aplica XP e devolve nível/pontos resultantes ──────────────────────
   function aplicarXp(nivel, xp, ganho) {
     var l = nivel, x = xp + ganho, pontos = 0;
@@ -97,6 +105,7 @@
     energiaMaxima: energiaMaxima, limiarCritico: limiarCritico, ehCritico: ehCritico,
     bonusProficiencia: bonusProficiencia, testeResistencia: testeResistencia,
     pontosDaMedicao: pontosDaMedicao, podeMedir: podeMedir, xpValidado: xpValidado,
+    xpEpica: xpEpica, prazoEpicaValido: prazoEpicaValido,
   };
   // o data.js expõe os mesmos dois helpers; mantém a fonte única aqui
   if (D) { D.mod = mod; D.xpNeed = xpNeed; }

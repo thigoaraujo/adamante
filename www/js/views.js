@@ -492,10 +492,31 @@
   </div>
 
   <div style="font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:.06em;margin:17px 16px 8px;color:#c2cfdd">ÉPICA</div>
+  ${v.epicActive ? `
+  <div style="margin:0 16px;position:relative;overflow:hidden;border:1px solid rgba(217,165,68,.4);border-radius:16px;padding:14px 15px;background:linear-gradient(150deg,rgba(217,165,68,.14),rgba(255,255,255,.03));animation:admIn .4s cubic-bezier(.2,.8,.2,1)">
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
+      <span style="${s(v.epicCatStyle)}">${esc(v.epicCatLabel)}</span>
+      <span style="font-size:10px;color:#8a97ab">${esc(v.epicDaysLabel)}</span>
+    </div>
+    <div style="font-family:'Bebas Neue',sans-serif;font-size:23px;line-height:1.02;letter-spacing:.03em;color:#fff">${esc(v.epicTitle)}</div>
+    <div style="display:flex;align-items:center;gap:10px;margin-top:12px">
+      <div style="flex:1;height:8px;background:rgba(0,0,0,.42);border-radius:4px;overflow:hidden"><div style="${s(v.epicBarStyle)}"></div></div>
+      <div style="font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:.04em;color:#f0cd85">${esc(v.epicPctLabel)}</div>
+    </div>
+    <div style="display:flex;align-items:center;gap:8px;margin-top:7px">
+      <div style="flex:1;font-size:11.5px;color:#c2cfdd">${esc(v.epicProgLabel)}</div>
+      <div style="font-size:10.5px;color:#8a97ab">${esc(v.epicRewardLabel)}</div>
+    </div>
+    <div style="display:flex;gap:8px;margin-top:13px">
+      <div${on(v.epicDone ? v.epicComplete : v.epicAdvance)}${hv('filter:brightness(1.08)')} style="${s(v.epicPrimaryStyle)}">${v.epicDone ? 'CONCLUIR MISSÃO' : 'REGISTRAR PROGRESSO'}</div>
+      ${v.epicDone ? '' : `<div${on(v.epicExpire)}${hv('color:#e8eef5')} style="min-height:46px;display:flex;align-items:center;padding:0 14px;border-radius:12px;border:1px solid rgba(255,255,255,.14);font-size:12px;color:#8a97ab;cursor:pointer">Deixar vencer</div>`}
+    </div>
+    ${v.epicDone ? '' : `<div style="font-size:10.5px;color:#68768a;margin-top:9px;line-height:1.4;text-wrap:pretty">Se o prazo vencer sem concluir, nada é perdido — a missão só expira e pode ser recriada.</div>`}
+  </div>` : `
   <div style="margin:0 16px;border:1px dashed rgba(255,255,255,.16);border-radius:16px;padding:14px 15px;text-align:center">
     <div style="font-size:12.5px;color:#9fadc0;line-height:1.5;margin-bottom:11px;text-wrap:pretty">Defina uma meta grande, de 15 a 90 dias. Se o prazo vencer, nada é perdido.</div>
-    <div${on(v.noop)}${hv('background:rgba(217,165,68,.22)')} style="display:inline-flex;align-items:center;min-height:44px;padding:0 18px;border-radius:11px;background:rgba(217,165,68,.14);border:1px solid rgba(217,165,68,.4);font-size:13px;font-weight:600;color:#f0cd85;cursor:pointer">Criar missão épica</div>
-  </div>
+    <div${on(v.openEpic)}${hv('background:rgba(217,165,68,.22)')} style="display:inline-flex;align-items:center;min-height:44px;padding:0 18px;border-radius:11px;background:rgba(217,165,68,.14);border:1px solid rgba(217,165,68,.4);font-size:13px;font-weight:600;color:#f0cd85;cursor:pointer">Criar missão épica</div>
+  </div>`}
   <div style="height:24px"></div>
 </div>`;
   }
@@ -898,7 +919,59 @@
   // ═══════════════════════════════════════════════════════════════════════════
   // Guilda
   // ═══════════════════════════════════════════════════════════════════════════
+  // ── guilda: estado vazio (convite por link + primeira meta coletiva) ──────
+  function guildaEmpty(v) {
+    return `
+<div style="animation:admIn .34s cubic-bezier(.2,.8,.2,1);padding:16px 16px 8px">
+  <div style="font-family:'Bebas Neue',sans-serif;font-size:29px;line-height:1;letter-spacing:.03em">SUA GUILDA</div>
+  <div style="font-size:11.5px;color:#75839a;margin-top:4px;margin-bottom:14px">Você ainda não tem membros. Comece convidando quem treina com você.</div>
+
+  <div style="display:flex;gap:9px;align-items:flex-start;background:rgba(111,200,238,.08);border:1px solid rgba(111,200,238,.26);border-radius:14px;padding:12px 13px;margin-bottom:16px">
+    <div style="width:3px;align-self:stretch;background:#6fc8ee;border-radius:2px"></div>
+    <div style="font-size:11.5px;line-height:1.5;color:#c2cfdd;text-wrap:pretty">Numa guilda, os membros veem e confirmam as missões uns dos outros — a maioria libera o XP integral. É o antifraude mais barato que existe: o constrangimento social.</div>
+  </div>
+
+  <div style="font-size:11px;letter-spacing:.13em;color:#75839a;text-transform:uppercase;margin-bottom:9px">Convite por link</div>
+  <div style="background:rgba(255,255,255,.045);border:1px solid rgba(255,255,255,.09);border-radius:16px;padding:14px 15px;margin-bottom:18px">
+    <div style="font-size:12.5px;color:#9fadc0;line-height:1.5;margin-bottom:11px;text-wrap:pretty">Quem abrir este link entra direto na guilda. Ele vale para até 10 membros.</div>
+    <div style="display:flex;align-items:center;gap:9px;background:rgba(0,0,0,.34);border:1px solid rgba(255,255,255,.1);border-radius:11px;padding:11px 13px;margin-bottom:11px">
+      <div style="flex:1;min-width:0;font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:.05em;color:#a5e2f7;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${esc(v.inviteLink)}</div>
+      <div style="width:7px;height:7px;border-radius:2px;transform:rotate(45deg);background:#6fc8ee"></div>
+    </div>
+    <div${on(v.copyInvite)}${hv('filter:brightness(1.08)')} style="${s(v.copyInviteStyle)}">${esc(v.copyInviteLabel)}</div>
+  </div>
+
+  <div style="font-size:11px;letter-spacing:.13em;color:#75839a;text-transform:uppercase;margin-bottom:9px">Primeira meta coletiva</div>
+  ${v.guildGoalSet ? `
+  <div style="position:relative;overflow:hidden;background:linear-gradient(150deg,rgba(79,203,180,.14),rgba(255,255,255,.03));border:1px solid rgba(79,203,180,.4);border-radius:16px;padding:14px 15px;animation:admIn .4s cubic-bezier(.2,.8,.2,1)">
+    <div style="font-size:10px;letter-spacing:.14em;color:#4fcbb4;text-transform:uppercase;margin-bottom:5px">Meta definida</div>
+    <div style="font-size:14px;font-weight:600;margin-bottom:11px">${esc(v.guildGoalTitle)}</div>
+    <div style="display:flex;align-items:center;gap:10px">
+      <div style="flex:1;height:7px;background:rgba(255,255,255,.08);border-radius:4px;overflow:hidden"><div style="height:100%;width:2%;background:linear-gradient(90deg,#4fcbb4,#6fc8ee);border-radius:4px"></div></div>
+      <div style="font-family:'Bebas Neue',sans-serif;font-size:15px;letter-spacing:.04em;color:#4fcbb4">0%</div>
+    </div>
+    <div style="font-size:10.5px;color:#68768a;margin-top:10px;line-height:1.45;text-wrap:pretty">Aguardando os primeiros membros. Quando a guilda fechar a meta, a recompensa vai para todos.</div>
+  </div>` : `
+  <div style="background:rgba(255,255,255,.045);border:1px solid rgba(255,255,255,.09);border-radius:16px;padding:14px 15px">
+    <div style="font-size:12.5px;color:#9fadc0;line-height:1.5;margin-bottom:12px;text-wrap:pretty">Escolha o objetivo comum com que a guilda nasce. Fechá-lo libera recompensa para todos os membros.</div>
+    <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:13px">
+      ${v.guildGoalOptions.map(function (g) {
+        return `<div${on(g.pick)} style="${s(g.style)}">
+          <div style="${s(g.dotStyle)}"></div>
+          <div style="flex:1;font-size:13px;font-weight:600;color:#e8eef5">${esc(g.title)}</div>
+        </div>`;
+      }).join('')}
+    </div>
+    <div${on(v.setFirstGuildGoal)}${hv('filter:brightness(1.08)')} style="min-height:48px;display:flex;align-items:center;justify-content:center;border-radius:13px;background:linear-gradient(135deg,#4fcbb4,#2a8a7a);font-family:'Bebas Neue',sans-serif;font-size:17px;letter-spacing:.08em;color:#04140f;cursor:pointer">DEFINIR PRIMEIRA META</div>
+  </div>`}
+
+  <div${on(v.viewSampleGuild)}${hv('color:#e8eef5')} style="display:inline-flex;align-items:center;gap:6px;margin-top:16px;font-size:12px;color:#8a97ab;cursor:pointer;min-height:32px">Ver uma guilda de exemplo <span style="font-family:'Bebas Neue',sans-serif;font-size:16px">›</span></div>
+  <div style="height:24px"></div>
+</div>`;
+  }
+
   function guilda(v) {
+    if (v.guildEmpty) return guildaEmpty(v);
     return `
 <div style="animation:admIn .34s cubic-bezier(.2,.8,.2,1);padding:16px 16px 8px">
   <div style="font-family:'Bebas Neue',sans-serif;font-size:29px;line-height:1;letter-spacing:.03em">FORJA CINZENTA</div>
@@ -1273,6 +1346,54 @@ ${v.levelUpOn ? `
       </div>
       <div style="position:relative;font-size:13.5px;line-height:1.5;color:#c2cfdd;max-width:250px;margin-top:8px;text-wrap:pretty">2 pontos de atributo liberados. Distribua onde quiser — não precisa ser onde você suou.</div>
       <div${on(v.closeLevelUp)}${hv('filter:brightness(1.08)')} style="position:relative;margin-top:24px;min-height:50px;display:flex;align-items:center;padding:0 26px;border-radius:13px;background:linear-gradient(135deg,#d9a544,#b8842c);color:#191202;font-family:'Bebas Neue',sans-serif;font-size:19px;letter-spacing:.1em;cursor:pointer">DISTRIBUIR AGORA</div>
+    </div>
+  </div>` : ''}
+
+${v.timerOn ? `
+  <div style="position:absolute;inset:0;z-index:88;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:26px;background:rgba(4,6,12,.93);backdrop-filter:blur(14px);animation:admFadeIn .24s ease-out">
+    <div style="font-size:10px;letter-spacing:.2em;color:#75839a;text-transform:uppercase;margin-bottom:5px">Cronômetro de estudo</div>
+    <div style="font-family:'Bebas Neue',sans-serif;font-size:21px;letter-spacing:.03em;color:#e8eef5;margin-bottom:16px">${esc(v.timerBlockLabel)}</div>
+    <div style="${s(v.timerRingStyle)}">
+      <div style="${s(v.timerRingInnerStyle)}">
+        <div style="${s(v.timerPhaseChipStyle)}">${esc(v.timerPhaseLabel)}</div>
+        <div style="${s(v.timerClockStyle)}">${esc(v.timerClock)}</div>
+      </div>
+    </div>
+    <div style="font-size:12px;line-height:1.5;color:#c2cfdd;text-align:center;max-width:294px;margin-top:20px;text-wrap:pretty">${esc(v.timerHint)}</div>
+    ${v.timerShowInterruptCount ? `<div style="font-size:10.5px;color:#d9a544;margin-top:7px">${esc(v.timerInterruptions)} recomeço(s) por segundo plano</div>` : ''}
+    <div style="font-size:10px;color:#5a6878;margin-top:9px;text-align:center;max-width:280px;line-height:1.4">${esc(v.timerProtoNote)}</div>
+    <div style="display:flex;gap:9px;width:100%;max-width:300px;margin-top:20px">
+      <div${on(v.timerPrimary)}${hv('filter:brightness(1.08)')} style="${s(v.timerPrimaryStyle)}">${esc(v.timerPrimaryLabel)}</div>
+      ${v.timerDone ? '' : `<div${on(v.timerClose)}${hv('color:#e8eef5')} style="min-height:50px;display:flex;align-items:center;padding:0 16px;border-radius:13px;border:1px solid rgba(255,255,255,.16);font-size:12.5px;color:#8a97ab;cursor:pointer">Sair</div>`}
+    </div>
+  </div>` : ''}
+
+${v.epicFormOn ? `
+  <div style="position:absolute;inset:0;z-index:86;display:flex;flex-direction:column;justify-content:center;padding:24px;background:rgba(4,6,12,.9);backdrop-filter:blur(14px);animation:admFadeIn .24s ease-out">
+    <div style="width:100%;max-width:340px;margin:0 auto;background:linear-gradient(180deg,rgba(14,20,34,.98),rgba(8,11,20,.98));border:1px solid rgba(217,165,68,.32);border-radius:20px;padding:18px 17px;box-shadow:0 24px 60px rgba(0,0,0,.6);animation:admRise .34s cubic-bezier(.2,.8,.2,1)">
+      <div style="font-size:10px;letter-spacing:.2em;color:#f0cd85;text-transform:uppercase;margin-bottom:3px">Missão épica</div>
+      <div style="font-family:'Bebas Neue',sans-serif;font-size:25px;letter-spacing:.03em;margin-bottom:4px">DEFINA UMA META GRANDE</div>
+      <div style="font-size:11.5px;color:#8a97ab;line-height:1.45;margin-bottom:14px;text-wrap:pretty">De 15 a 90 dias. Se o prazo vencer, nada é perdido — a missão só expira.</div>
+      <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:15px">
+        ${v.epicPresets.map(function (p) {
+          return `<div${on(p.pick)} style="${s(p.style)}">
+            <div><span style="${s(p.catStyle)}">${esc(p.catLabel)}</span></div>
+            <div style="font-size:14px;font-weight:600;color:#fff">${esc(p.title)}</div>
+            <div style="font-size:11px;color:#8a97ab">${esc(p.sub)}</div>
+          </div>`;
+        }).join('')}
+      </div>
+      <div style="display:flex;align-items:center;gap:11px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.09);border-radius:13px;padding:11px 13px;margin-bottom:7px">
+        <div style="flex:1"><div style="font-size:12px;color:#c2cfdd;font-weight:600">Prazo</div><div style="font-size:10.5px;color:#68768a">${esc(v.epicDaysHint)}</div></div>
+        <div${on(v.epicDaysDec)}${hv('background:rgba(255,255,255,.12)')} style="width:38px;height:38px;display:flex;align-items:center;justify-content:center;border-radius:10px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);font-size:20px;color:#e8eef5;cursor:pointer">−</div>
+        <div style="min-width:70px;text-align:center"><span style="font-family:'Bebas Neue',sans-serif;font-size:26px;letter-spacing:.02em;color:#f0cd85">${esc(v.epicDaysValue)}</span><span style="font-size:11px;color:#8a97ab"> dias</span></div>
+        <div${on(v.epicDaysInc)}${hv('background:rgba(255,255,255,.12)')} style="width:38px;height:38px;display:flex;align-items:center;justify-content:center;border-radius:10px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);font-size:20px;color:#e8eef5;cursor:pointer">+</div>
+      </div>
+      <div style="font-size:11px;color:#9fadc0;text-align:center;margin-bottom:15px">Recompensa · <span style="color:#f0cd85">${esc(v.epicRewardPreview)}</span></div>
+      <div style="display:flex;gap:9px">
+        <div${on(v.epicCreate)}${hv('filter:brightness(1.08)')} style="flex:1;min-height:50px;display:flex;align-items:center;justify-content:center;border-radius:13px;background:linear-gradient(135deg,#d9a544,#b8842c);font-family:'Bebas Neue',sans-serif;font-size:19px;letter-spacing:.09em;color:#191202;cursor:pointer">CRIAR</div>
+        <div${on(v.epicCancel)}${hv('color:#e8eef5')} style="min-height:50px;display:flex;align-items:center;padding:0 16px;border-radius:13px;border:1px solid rgba(255,255,255,.16);font-size:12.5px;color:#8a97ab;cursor:pointer">Cancelar</div>
+      </div>
     </div>
   </div>` : ''}`;
   }

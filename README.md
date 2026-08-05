@@ -29,6 +29,7 @@ python -m http.server 8099
 | `name` | nome do personagem | vazio |
 | `battleMode` | `confronto`, `livre` | `confronto` |
 | `returning` | `1` para usuário que voltou (começa com Fadiga 5) | desligado |
+| `guild` | `empty` para abrir a guilda no estado vazio (convite por link e primeira meta) | guilda cheia |
 
 `platform` muda o respiro do topo (ilha dinâmica do iOS × barra de status do Android),
 o rótulo do botão social e a altura da barra de abas.
@@ -145,12 +146,22 @@ declaração entra com `!important` numa folha própria.
    adiado agora desiste se a batalha já não existe (`state.js → commitCard`).
 3. **Regras centralizadas** — o documento repetia as fórmulas dentro da lógica de tela; aqui
    elas moram só em `core.js`, como a especificação manda.
+4. **Relógio do cronômetro acelerado** — o cronômetro de estudo (validação de camada 2) roda a
+   mecânica real: dois blocos de foco, pausa entre eles e detecção de app em segundo plano, que
+   invalida o bloco em curso (`app.js → visibilitychange`). Só o relógio é comprimido para caber
+   numa demonstração; o app real conta 25 minutos por bloco. A tela avisa isso.
 
-## O que falta, conforme o próprio documento de design
+## O que já entrega, além do laço básico
 
-- Cronômetro de estudo com detecção de app em segundo plano (validação de camada 2).
-- Fluxo de criação de missão épica, incluindo o vencimento sem punição.
-- Estado vazio de guilda: convite por link e primeira meta coletiva.
+- **Cronômetro de estudo** (§18.2) — pomodoro de dois blocos com detecção de segundo plano.
+  Toque na missão de estudo para abrir; sair do app durante o foco zera o bloco.
+- **Missão épica** (§11.4) — criação com prazo de 15 a 90 dias, barra de progresso, conclusão
+  (800–2.000 XP conforme o prazo, +500 ouro, +3 pontos) e vencimento sem punição, recriável.
+- **Estado vazio de guilda** (§15) — convite por link e definição da primeira meta coletiva.
+  Abra com `app.html?guild=empty` ou pelo atalho "ver guilda de exemplo".
+
+## O que ainda falta, conforme o próprio documento de design
+
 - Arte real de classe, monstro e carta nos espaços marcados.
 
 ## Licença de conteúdo

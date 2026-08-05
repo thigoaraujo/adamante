@@ -8,7 +8,11 @@
   var ATTRS = D.ATTRS, CLASSES = D.CLASSES, CARDS = D.CARDS;
   var ENEMY_DECK = D.ENEMY_DECK, ENEMY_SCRIPT = D.ENEMY_SCRIPT;
   var GUILD = D.GUILD, TRADES = D.TRADES, MAJORITY = D.MAJORITY;
+  var STUDY = D.STUDY, EPIC = D.EPIC, EPIC_PRESETS = D.EPIC_PRESETS, GUILD_GOALS = D.GUILD_GOALS;
   var mod = C.mod, xpNeed = C.xpNeed;
+
+  // relógio do cronômetro: o protótipo comprime os 25 min num tempo de demonstração
+  var TICK_MS = 120, TICK_DEC = 13;
 
   function App(props) {
     this.props = props || {};
@@ -41,8 +45,16 @@
       gains: [], xpFlash: false, animGold: 0, animXp: 0, impact: 0, preview: null,
       battleMode: this.props.battleMode || 'confronto',
       proofPhoto: {},
+      // cronômetro de estudo (§18.2)
+      timer: null,
+      // missão épica (§11.4)
+      epic: null, epicForm: false, epicPreset: 0, epicDays: 30,
+      // guilda: estado vazio, convite por link e primeira meta coletiva (§15)
+      guildEmpty: !!this.props.guildEmpty,
+      inviteCopied: false, guildGoal: null, guildGoalPick: 0, guildGoalForm: false,
     };
     this._t = [];
+    this._timerInt = null;
     this._alive = true;
     this._onRender = null;   // definido pelo bootstrap
     this._irisPlay = null;   // definido pelo bootstrap
@@ -69,7 +81,7 @@
     this._t.push(t);
     return t;
   };
-  P.destroy = function () { this._alive = false; this._t.forEach(clearTimeout); this._t = []; };
+  P.destroy = function () { this._alive = false; this._t.forEach(clearTimeout); this._t = []; this.stopTimerClock(); };
 
   P.didUpdate = function (ps) {
     if (ps.gold !== this.state.gold) this.tween('animGold', ps.gold, this.state.gold);
@@ -243,6 +255,143 @@
     var pontos = C.pontosDaMedicao(1.2, true);
     this.setState({ medDone: true, points: this.state.points + pontos });
     this.toast('+' + pontos + ' pontos de atributo', 'Massa magra subiu 1,2 kg e a água corporal subiu 1 ponto.', '#4fcbb4');
+  };
+
+  // ── §18.2 cronômetro de estudo (validação de camada 2) ────────────────────
+  // Estudo e trabalho só contam com o timer rodando no app, com detecção de
+  // app em segundo plano. Deixar o app durante um bloco de foco invalida o bloco.
+  P.startTimerClock = function () {
+    var self = this;
+    if (this._timerInt) return;
+    this._timerInt = setInterval(function () { if (self._alive) self.tickTimer(); }, TICK_MS);
+  };
+  P.stopTimerClock = function () { if (this._timerInt) { clearInterval(this._timerInt); this._timerInt = null; } };
+
+  P.openTimer = function (missionId) {
+    var m = this.state.missions.find(function (x) { return x.id === missionId; });
+    if (!m || m.done) return;
+    this.stopTimerClock();
+    this.setState({
+      timer: {
+        missionId: missionId, title: m.title, phase: 'ready',
+        block: 1, totalBlocks: STUDY.blocks, blocksDone: 0,
+        secLeft: STUDY.blockSec, blockSec: STUDY.blockSec, breakSec: STUDY.breakSec,
+        interruptions: 0,
+      },
+    });
+  };
+  P.startTimer = function () {
+    var t = this.state.timer; if (!t) return;
+    var secLeft = t.phase === 'interrupted' ? t.blockSec : t.secLeft;
+    this.setState({ timer: Object.assign({}, t, { phase: 'running', secLeft: secLeft }) });
+    this.startTimerClock();
+  };
+  P.pauseTimer = function () {
+    var t = this.state.timer; if (!t || t.phase !== 'running') return;
+    this.stopTimerClock();
+    this.setState({ timer: Object.assign({}, t, { phase: 'ready' }) });
+  };
+  P.skipBreak = function () {
+    var t = this.state.timer; if (!t || t.phase !== 'break') return;
+    this.setState({ timer: Object.assign({}, t, { phase: 'running', secLeft: t.blockSec }) });
+    this.startTimerClock();
+  };
+  P.tickTimer = function () {
+    var t = this.state.timer;
+    if (!t || (t.phase !== 'running' && t.phase !== 'break')) { this.stopTimerClock(); return; }
+    var secLeft = t.secLeft - TICK_DEC;
+    if (secLeft > 0) { this.setState({ timer: Object.assign({}, t, { secLeft: secLeft }) }); return; }
+    if (t.phase === 'break') {
+      this.setState({ timer: Object.assign({}, t, { phase: 'running', secLeft: t.blockSec }) });
+      return;
+    }
+    var blocksDone = t.blocksDone + 1;
+    if (blocksDone >= t.totalBlocks) {
+      this.stopTimerClock();
+      this.setState({ timer: Object.assign({}, t, { phase: 'done', blocksDone: blocksDone, secLeft: 0 }) });
+    } else {
+      this.setState({ timer: Object.assign({}, t, { phase: 'break', blocksDone: blocksDone, block: blocksDone + 1, secLeft: t.breakSec }) });
+    }
+  };
+  // detecção de segundo plano: só o bloco de foco é invalidado; a pausa é livre
+  P.timerBackgrounded = function () {
+    var t = this.state.timer;
+    if (!t || t.phase !== 'running') return;
+    this.stopTimerClock();
+    this.setState({ timer: Object.assign({}, t, { phase: 'interrupted', secLeft: t.blockSec, interruptions: t.interruptions + 1 }) });
+  };
+  P.finishTimer = function () {
+    var t = this.state.timer; if (!t || t.phase !== 'done') return;
+    var id = t.missionId;
+    this.stopTimerClock();
+    this.setState({ timer: null });
+    var m = this.state.missions.find(function (x) { return x.id === id; });
+    if (m && !m.done) this.toggleMission(id);
+  };
+  P.closeTimer = function () { this.stopTimerClock(); this.setState({ timer: null }); };
+
+  // ── §11.4 missão épica: criação, progresso, conclusão e vencimento ────────
+  P.openEpicForm = function () { this.setState({ epicForm: true, epicPreset: 0, epicDays: 30 }); };
+  P.closeEpicForm = function () { this.setState({ epicForm: false }); };
+  P.setEpicPreset = function (i) { this.setState({ epicPreset: i }); };
+  P.setEpicDays = function (d) {
+    this.setState({ epicDays: Math.max(EPIC.minDays, Math.min(EPIC.maxDays, d | 0)) });
+  };
+  P.createEpic = function () {
+    var s = this.state, p = EPIC_PRESETS[s.epicPreset];
+    if (!C.prazoEpicaValido(s.epicDays)) { this.toast('Prazo fora da faixa', 'A missão épica precisa de 15 a 90 dias.', '#d9a544'); return; }
+    this.setState({
+      epic: { title: p.title, target: p.target, unit: p.unit, cat: p.cat, current: 0, days: s.epicDays, xp: C.xpEpica(s.epicDays) },
+      epicForm: false,
+    });
+    this.toast('Missão épica criada', p.title + ' · ' + s.epicDays + ' dias. Se o prazo vencer, nada é perdido.', '#d9a544');
+  };
+  P.advanceEpic = function () {
+    var e = this.state.epic; if (!e || e.current >= e.target) return;
+    var step = Math.max(1, Math.round(e.target / 8));
+    var current = Math.min(e.target, e.current + step);
+    this.setState({ epic: Object.assign({}, e, { current: current }) });
+    if (current >= e.target) this.toast('Meta atingida', 'Colha a recompensa da missão épica.', '#4fcbb4');
+  };
+  P.completeEpic = function () {
+    var self = this, st = this.state, e = st.epic;
+    if (!e || e.current < e.target) return;
+    var fromLevel = st.level, res = C.aplicarXp(st.level, st.xp, e.xp);
+    this.setState({
+      epic: null, xp: res.xp, level: res.nivel,
+      points: st.points + res.pontosGanhos + EPIC.points, gold: st.gold + EPIC.gold,
+    });
+    this.gain('+' + e.xp + ' XP', '#d9a544');
+    if (res.subiu) {
+      this.later(function () { self.setState({ levelUp: true, lvFrom: fromLevel, wipe: null }); }, 640);
+    } else {
+      this.toast('Missão épica concluída', '+' + e.xp + ' XP · +' + EPIC.gold + ' ouro · +' + EPIC.points + ' pontos de atributo.', '#d9a544');
+    }
+  };
+  P.expireEpic = function () {
+    if (!this.state.epic) return;
+    this.setState({ epic: null });
+    this.toast('Missão expirada', 'Nada foi perdido — sem punição. Você pode recriá-la quando quiser.', '#7f8ec0');
+  };
+
+  // ── §15 guilda: estado vazio, convite por link e primeira meta coletiva ───
+  P.copyInvite = function () {
+    var self = this, link = D.GUILD_INVITE;
+    var done = function () {
+      self.setState({ inviteCopied: true });
+      self.toast('Link copiado', 'Convites por link entram direto na guilda. Mande para quem treina com você.', '#6fc8ee');
+      self.later(function () { self.setState({ inviteCopied: false }); }, 2600);
+    };
+    try {
+      if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(link).then(done, done);
+      else done();
+    } catch (e) { done(); }
+  };
+  P.setGuildGoalPick = function (i) { this.setState({ guildGoalPick: i }); };
+  P.setFirstGuildGoal = function () {
+    var g = GUILD_GOALS[this.state.guildGoalPick];
+    this.setState({ guildGoal: { title: g.title, target: g.target, cat: g.cat } });
+    this.toast('Primeira meta definida', 'A guilda nasce com um objetivo comum. Fechá-lo libera recompensa para todos os membros.', '#4fcbb4');
   };
 
   // ── batalha ───────────────────────────────────────────────────────────────

@@ -11,6 +11,7 @@
   var ENEMY_SCRIPT = D.ENEMY_SCRIPT, DAYS = D.DAYS;
   var GUILD = D.GUILD, GEAR = D.GEAR, TRADES = D.TRADES;
   var GUILD_SIZE = D.GUILD_SIZE, MAJORITY = D.MAJORITY;
+  var EPIC = D.EPIC, EPIC_PRESETS = D.EPIC_PRESETS, GUILD_GOALS = D.GUILD_GOALS, GUILD_INVITE = D.GUILD_INVITE;
   var mod = C.mod, xpNeed = C.xpNeed;
 
   function vals(app) {
@@ -75,12 +76,19 @@
     });
 
     // ── missões ─────────────────────────────────────────────────────────────
+    // missão validada por cronômetro abre o timer de estudo em vez de só marcar
+    var missionTap = function (m) {
+      return function () {
+        if (m.src === 'cronômetro' && !m.done) app.openTimer(m.id);
+        else app.toggleMission(m.id);
+      };
+    };
     var mkMission = function (m) {
       var cat = CATS[m.cat];
       return {
         title: m.title, catLabel: cat.label, diffLabel: DIFFS[m.diff], srcLabel: m.src,
         xpLabel: '+' + m.xp, goldLabel: '+' + m.gold,
-        toggle: function () { app.toggleMission(m.id); },
+        toggle: missionTap(m),
         sheen: m.done ? { display: 'none' } : sheen,
         sweep: m.done ? {
           position: 'absolute', top: 0, bottom: 0, width: '46%',
@@ -116,7 +124,7 @@
       return {
         title: m.title, catLabel: cat.label, diffLabel: DIFFS[m.diff], srcLabel: m.src,
         xpLabel: '+' + m.xp + ' XP', goldLabel: '+' + m.gold + ' OURO',
-        toggle: function () { app.toggleMission(m.id); },
+        toggle: missionTap(m),
         cardStyle: {
           position: 'relative', display: 'flex', gap: 12, alignItems: 'flex-start',
           padding: '13px 14px 13px 16px', borderRadius: 16, cursor: 'pointer', overflow: 'hidden',
@@ -522,6 +530,46 @@
         },
       };
     });
+
+    // ── cronômetro de estudo ─────────────────────────────────────────────────
+    var tm = st.timer;
+    var fmtClock = function (sec) {
+      var s = Math.max(0, Math.ceil(sec)), m = Math.floor(s / 60), r = s % 60;
+      return (m < 10 ? '0' : '') + m + ':' + (r < 10 ? '0' : '') + r;
+    };
+    var timerPaused = !!(tm && tm.phase === 'ready' && tm.secLeft < tm.blockSec);
+    var timerColor = '#6fc8ee', timerPct = 0;
+    if (tm) {
+      var full = tm.phase === 'break' ? tm.breakSec : tm.blockSec;
+      timerPct = Math.max(0, Math.min(100, (1 - tm.secLeft / full) * 100));
+      timerColor = tm.phase === 'interrupted' ? '#d9a544' : tm.phase === 'break' ? '#4fcbb4'
+        : tm.phase === 'done' ? '#e8c46a' : '#6fc8ee';
+    }
+    var timerPhaseLabel = tm ? ({ ready: timerPaused ? 'PAUSADO' : 'PRONTO', running: 'FOCO', break: 'PAUSA', interrupted: 'INTERROMPIDO', done: 'CONCLUÍDO' })[tm.phase] : '';
+    var timerHints = {
+      ready: timerPaused ? 'Pausado. O tempo volta de onde parou.' : 'Dois blocos de 25 min. O relógio só conta com o app aberto — sair invalida o bloco.',
+      running: 'App aberto, tempo contando. Trocar de app agora zera este bloco.',
+      break: 'Pausa curta entre os blocos. Aqui você pode sair à vontade.',
+      interrupted: 'O app foi para segundo plano durante o foco. O bloco recomeça do zero — é assim que o cronômetro evita tempo inflado.',
+      done: 'Dois blocos completos. O estudo entra validado pelo cronômetro, com XP integral.',
+    };
+    var timerPrimaryLabel = '', timerPrimary = function () {};
+    if (tm) {
+      if (tm.phase === 'ready') { timerPrimaryLabel = timerPaused ? 'CONTINUAR' : 'INICIAR BLOCO'; timerPrimary = function () { app.startTimer(); }; }
+      else if (tm.phase === 'running') { timerPrimaryLabel = 'PAUSAR'; timerPrimary = function () { app.pauseTimer(); }; }
+      else if (tm.phase === 'break') { timerPrimaryLabel = 'PULAR PAUSA'; timerPrimary = function () { app.skipBreak(); }; }
+      else if (tm.phase === 'interrupted') { timerPrimaryLabel = 'RECOMEÇAR O BLOCO'; timerPrimary = function () { app.startTimer(); }; }
+      else if (tm.phase === 'done') { timerPrimaryLabel = 'COLHER RECOMPENSA'; timerPrimary = function () { app.finishTimer(); }; }
+    }
+
+    // ── missão épica ─────────────────────────────────────────────────────────
+    var epic = st.epic, epicDone = !!(epic && epic.current >= epic.target);
+    var epicCat = epic ? CATS[epic.cat] : CATS.corpo;
+    var epicPct = epic ? Math.min(100, Math.round(epic.current / epic.target * 100)) : 0;
+    var epicPreset = EPIC_PRESETS[st.epicPreset] || EPIC_PRESETS[0];
+
+    // ── guilda: estado vazio ─────────────────────────────────────────────────
+    var gGoal = st.guildGoal, gGoalPick = GUILD_GOALS[st.guildGoalPick] || GUILD_GOALS[0];
 
     var fatigueMsgs = {
       1: 'Sequência zerada. Um dia com todas as diárias concluídas remove 2 pontos.',
@@ -1106,6 +1154,126 @@
       lvFromStyle: { fontFamily: "'Bebas Neue',sans-serif", fontSize: 46, lineHeight: .9, letterSpacing: '.02em', color: '#8a97ab', animation: 'admNumFade 1s cubic-bezier(.4,0,.6,1) 1.46s both' },
       lvArrowStyle: { fontFamily: "'Bebas Neue',sans-serif", fontSize: 34, lineHeight: 1, color: '#d9a544', animation: 'admPop .48s cubic-bezier(.2,.8,.2,1) 1.28s both' },
       lvToStyle: { fontFamily: "'Bebas Neue',sans-serif", fontSize: 96, lineHeight: .88, letterSpacing: '.02em', color: '#fff', textShadow: '0 0 44px rgba(217,165,68,.6)', animation: 'admSlam .9s cubic-bezier(.2,.9,.2,1) 1.34s both' },
+
+      // ── cronômetro de estudo ───────────────────────────────────────────────
+      timerOn: !!tm,
+      timerBlockLabel: tm ? 'Bloco ' + tm.block + ' de ' + tm.totalBlocks : '',
+      timerPhaseLabel: timerPhaseLabel,
+      timerClock: tm ? fmtClock(tm.secLeft) : '',
+      timerHint: tm ? timerHints[tm.phase] : '',
+      timerProtoNote: 'Protótipo · relógio acelerado; no app real cada bloco leva 25 minutos.',
+      timerInterrupted: !!(tm && tm.phase === 'interrupted'),
+      timerDone: !!(tm && tm.phase === 'done'),
+      timerInterruptions: tm ? tm.interruptions : 0,
+      timerShowInterruptCount: !!(tm && tm.interruptions > 0 && tm.phase !== 'interrupted'),
+      timerPrimaryLabel: timerPrimaryLabel, timerPrimary: timerPrimary,
+      timerClose: function () { app.closeTimer(); },
+      timerRingStyle: {
+        position: 'relative', width: 208, height: 208, borderRadius: '50%',
+        background: 'conic-gradient(' + timerColor + ' ' + (timerPct * 3.6) + 'deg, rgba(255,255,255,.09) 0deg)',
+        display: 'flex', alignItems: 'center', justifyContent: 'center',
+        transition: 'background .18s linear', boxShadow: '0 0 44px ' + timerColor + '33',
+      },
+      timerRingInnerStyle: {
+        width: 176, height: 176, borderRadius: '50%',
+        background: 'radial-gradient(circle at 50% 38%,#121a2c,#080b14 78%)',
+        border: '1px solid rgba(255,255,255,.08)', display: 'flex', flexDirection: 'column',
+        alignItems: 'center', justifyContent: 'center', gap: 4,
+      },
+      timerClockStyle: { fontFamily: "'Bebas Neue',sans-serif", fontSize: 52, lineHeight: 1, letterSpacing: '.03em', color: '#fff' },
+      timerPhaseChipStyle: {
+        fontSize: 9.5, fontWeight: 700, letterSpacing: '.18em', color: timerColor,
+        padding: '2px 8px', borderRadius: 5, background: timerColor + '1a', border: '1px solid ' + timerColor + '55',
+      },
+      timerColor: timerColor,
+      timerPrimaryStyle: {
+        flex: 1, minHeight: 50, display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: 13,
+        fontFamily: "'Bebas Neue',sans-serif", fontSize: 18, letterSpacing: '.09em', cursor: 'pointer',
+        background: 'linear-gradient(135deg,' + timerColor + ',' + timerColor + 'bb)', color: '#04141f',
+      },
+
+      // ── missão épica ───────────────────────────────────────────────────────
+      epicActive: !!epic,
+      epicTitle: epic ? epic.title : '',
+      epicCatLabel: epicCat.label, epicCatStyle: pill(epicCat.color),
+      epicProgLabel: epic ? epic.current + ' / ' + epic.target + ' ' + epic.unit : '',
+      epicPctLabel: epicPct + '%',
+      epicDaysLabel: epic ? epic.days + ' dias de prazo' : '',
+      epicXpLabel: epic ? '+' + epic.xp + ' XP' : '',
+      epicRewardLabel: epic ? '+' + epic.xp + ' XP · +' + EPIC.gold + ' ouro · +' + EPIC.points + ' pontos' : '',
+      epicDone: epicDone,
+      epicBarStyle: { height: '100%', width: epicPct + '%', background: 'linear-gradient(90deg,' + epicCat.color + ',#e8c46a)', borderRadius: 4, transition: 'width .5s cubic-bezier(.2,.8,.2,1)' },
+      openEpic: function () { app.openEpicForm(); },
+      epicAdvance: function () { app.advanceEpic(); },
+      epicComplete: function () { app.completeEpic(); },
+      epicExpire: function () { app.expireEpic(); },
+      epicPrimaryStyle: {
+        flex: 1, minHeight: 46, display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: 12,
+        fontFamily: "'Bebas Neue',sans-serif", fontSize: 16, letterSpacing: '.08em', cursor: 'pointer',
+        background: epicDone ? 'linear-gradient(135deg,#d9a544,#b8842c)' : 'rgba(217,165,68,.14)',
+        border: epicDone ? 'none' : '1px solid rgba(217,165,68,.42)',
+        color: epicDone ? '#191202' : '#f0cd85',
+      },
+      // criação de missão épica
+      epicFormOn: st.epicForm,
+      epicPresets: EPIC_PRESETS.map(function (p, i) {
+        var sel = i === st.epicPreset, cat = CATS[p.cat];
+        return {
+          title: p.title, sub: 'meta de ' + p.target + ' ' + p.unit, pick: function () { app.setEpicPreset(i); },
+          catStyle: pill(cat.color), catLabel: cat.label,
+          style: {
+            display: 'flex', flexDirection: 'column', gap: 6, padding: '12px 13px', borderRadius: 13, cursor: 'pointer',
+            transition: 'all .2s',
+            background: sel ? 'rgba(217,165,68,.12)' : 'rgba(255,255,255,.04)',
+            border: '1px solid ' + (sel ? 'rgba(217,165,68,.5)' : 'rgba(255,255,255,.09)'),
+          },
+        };
+      }),
+      epicDaysValue: st.epicDays,
+      epicDaysDec: function () { app.setEpicDays(st.epicDays - 5); },
+      epicDaysInc: function () { app.setEpicDays(st.epicDays + 5); },
+      epicDaysHint: 'de ' + EPIC.minDays + ' a ' + EPIC.maxDays + ' dias',
+      epicXpPreview: '+' + C.xpEpica(st.epicDays) + ' XP',
+      epicRewardPreview: '+' + C.xpEpica(st.epicDays) + ' XP · +' + EPIC.gold + ' ouro · +' + EPIC.points + ' pontos de atributo',
+      epicCreate: function () { app.createEpic(); },
+      epicCancel: function () { app.closeEpicForm(); },
+
+      // ── guilda: estado vazio ───────────────────────────────────────────────
+      guildEmpty: st.guildEmpty,
+      inviteLink: GUILD_INVITE,
+      inviteCopied: st.inviteCopied,
+      copyInviteLabel: st.inviteCopied ? 'LINK COPIADO ✓' : 'COPIAR LINK',
+      copyInvite: function () { app.copyInvite(); },
+      copyInviteStyle: {
+        minHeight: 46, display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: 12,
+        fontFamily: "'Bebas Neue',sans-serif", fontSize: 15, letterSpacing: '.08em', cursor: 'pointer',
+        background: st.inviteCopied ? 'rgba(79,203,180,.16)' : 'linear-gradient(135deg,#6fc8ee,#3f9ecb)',
+        border: st.inviteCopied ? '1px solid rgba(79,203,180,.4)' : 'none',
+        color: st.inviteCopied ? '#4fcbb4' : '#04141f',
+      },
+      guildGoalSet: !!gGoal,
+      guildGoalTitle: gGoal ? gGoal.title : '',
+      guildGoalOptions: GUILD_GOALS.map(function (g, i) {
+        var sel = i === st.guildGoalPick, cat = CATS[g.cat];
+        return {
+          title: g.title, pick: function () { app.setGuildGoalPick(i); },
+          dotStyle: {
+            flex: 'none', width: 16, height: 16, borderRadius: '50%',
+            border: '2px solid ' + (sel ? cat.color : 'rgba(255,255,255,.24)'),
+            background: sel ? 'radial-gradient(closest-side,' + cat.color + ' 52%,transparent 56%)' : 'transparent',
+            transition: 'all .2s',
+          },
+          style: {
+            display: 'flex', alignItems: 'center', gap: 11, padding: '12px 13px', borderRadius: 13, cursor: 'pointer',
+            transition: 'all .2s',
+            background: sel ? 'rgba(79,203,180,.1)' : 'rgba(255,255,255,.04)',
+            border: '1px solid ' + (sel ? 'rgba(79,203,180,.45)' : 'rgba(255,255,255,.09)'),
+          },
+        };
+      }),
+      setFirstGuildGoal: function () { app.setFirstGuildGoal(); },
+      viewSampleGuild: function () { app.setState({ guildEmpty: false }); },
+
       noop: function () { app.toast('Fora do escopo do protótipo', 'Este fluxo existe na especificação, mas não foi montado aqui.', '#8a97ab'); },
     };
   }

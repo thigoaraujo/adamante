@@ -75,10 +75,33 @@
     { de: 'Duda', offer: { k: 'carta', id: 'c6' }, want: { k: 'carta', id: 'c3' }, nota: 'Cura por esquiva, fecha?' },
   ];
 
+  // ── cronômetro de estudo (§18.2 · validação de camada 2) ────────────────────
+  // pomodoro de 2 blocos de 25 min. O protótipo acelera o relógio para caber
+  // numa demonstração; a mecânica de detecção de segundo plano é a real.
+  var STUDY = { blocks: 2, blockSec: 25 * 60, breakSec: 5 * 60 };
+
+  // ── missão épica (§11.4) ────────────────────────────────────────────────────
+  var EPIC_PRESETS = [
+    { title: 'Estudar 60 horas', target: 60, unit: 'horas', cat: 'mente' },
+    { title: 'Completar 40 treinos', target: 40, unit: 'treinos', cat: 'corpo' },
+    { title: 'Fechar 30 metas de trabalho', target: 30, unit: 'metas', cat: 'oficio' },
+  ];
+  var EPIC = { minDays: 15, maxDays: 90, gold: 500, points: 3 };
+
+  // ── guilda: convite por link e primeira meta coletiva (§15, §24 v3) ──────────
+  var GUILD_INVITE = 'adamante.app/entrar/7F3QK9';
+  var GUILD_GOALS = [
+    { title: '40 missões concluídas pela guilda', target: 40, cat: 'oficio' },
+    { title: '15 treinos somados nesta semana', target: 15, cat: 'corpo' },
+    { title: '100 horas de estudo no mês', target: 100, cat: 'mente' },
+  ];
+
   global.AdmData = {
     CATS: CATS, DIFFS: DIFFS, RAR: RAR, RARL: RARL, CLASSES: CLASSES, ATTRS: ATTRS,
     CARDS: CARDS, ENEMY_DECK: ENEMY_DECK, ENEMY_SCRIPT: ENEMY_SCRIPT, DAYS: DAYS,
     GUILD_SIZE: GUILD_SIZE, MAJORITY: MAJORITY, GUILD: GUILD, GEAR: GEAR, TRADES: TRADES,
+    STUDY: STUDY, EPIC_PRESETS: EPIC_PRESETS, EPIC: EPIC,
+    GUILD_INVITE: GUILD_INVITE, GUILD_GOALS: GUILD_GOALS,
     mod: function (v) { return Math.floor((v - 10) / 2); },
     xpNeed: function (n) { return Math.round(80 * Math.pow(n, 1.5) / 10) * 10; },
   };

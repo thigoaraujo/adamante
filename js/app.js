@@ -19,6 +19,7 @@
       characterName: q.get('name') || q.get('characterName') || '',
       battleMode: q.get('battleMode') === 'livre' ? 'livre' : 'confronto',
       returningUser: q.has('returning') ? truthy('returning') : false,
+      guildEmpty: q.get('guild') === 'empty' || (q.has('guildEmpty') && truthy('guildEmpty')),
     };
   }
 
@@ -100,6 +101,11 @@
       if (!el) return;
       var fn = handlers && handlers.blur[+el.getAttribute('data-hb')];
       if (fn) fn(e);
+    });
+
+    // ── §18.2 detecção de app em segundo plano: invalida o bloco de estudo ───
+    document.addEventListener('visibilitychange', function () {
+      if (document.hidden) app.timerBackgrounded();
     });
 
     // ── slot de foto de comprovação (substitui o <image-slot> do canvas) ─────
