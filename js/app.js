@@ -29,6 +29,7 @@
 
     var app = new App(readProps());
     app.loadProofPhotos();
+    app.loadPortraits();
     global.adamante = app;
 
     var handlers = null;

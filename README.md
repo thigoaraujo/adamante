@@ -168,7 +168,12 @@ declaração entra com `!important` numa folha própria.
 - **Arte de classe, monstro e carta** — os espaços antes tracejados agora têm arte real, com
   tiles de pixel art do Dungeon Crawl Stone Soup (CC0). Ficam em `assets/art/`, referenciados
   por `id` (`cls_<classe>`, `card_<id>`, `mon_sentinela`) e renderizados com `image-rendering`
-  pixelado (classe `.adm-art`).
+  pixelado (classe `.adm-art`). As cartas também têm ícone na mão de batalha e nos dois lados
+  do duelo do Confronto.
+- **Seletor de aparência** — cada classe tem quatro personagens (variações de gênero e raça:
+  guerreira, goblin, feiticeira, etc.), escolhíveis no onboarding e trocáveis na aba Perfil.
+  A escolha (`state.portraits`) persiste no `localStorage` e vale no herói, no carrossel e na
+  batalha. Definido em `data.js → PORTRAITS`.
 
 ## Licença de conteúdo
 

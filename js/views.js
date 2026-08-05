@@ -298,6 +298,15 @@
         <div style="display:flex;justify-content:center;gap:7px;margin-top:14px">
           ${v.obClassDots.map(function (d) { return `<div${on(d.pick)} style="${s(d.style)}"></div>`; }).join('')}
         </div>
+        <div style="font-size:10px;letter-spacing:.14em;color:#75839a;text-transform:uppercase;text-align:center;margin:18px 0 10px">Aparência</div>
+        <div style="display:flex;gap:9px;justify-content:center;flex-wrap:wrap">
+          ${v.portraitOptions.map(function (o) {
+            return `<div${on(o.pick)} style="${s(o.style)}">
+              <div style="${s(o.boxStyle)}"><img class="adm-art" src="${esc(o.art)}" alt="" style="padding:8%"></div>
+              <div style="${s(o.labelStyle)}">${esc(o.label)}</div>
+            </div>`;
+          }).join('')}
+        </div>
       </div>` : ''}
 
     ${v.obIs4 ? `
@@ -1207,6 +1216,16 @@
 <div style="animation:admIn .34s cubic-bezier(.2,.8,.2,1);padding:16px 16px 8px">
   <div style="font-family:'Bebas Neue',sans-serif;font-size:29px;line-height:1;letter-spacing:.03em">PERFIL</div>
   <div style="font-size:11.5px;color:#75839a;margin-top:4px;margin-bottom:16px">${esc(v.charName)} · ${esc(v.clsName)} · nível ${esc(v.charLevel)}</div>
+
+  <div style="font-size:11px;letter-spacing:.13em;color:#75839a;text-transform:uppercase;margin-bottom:9px">Aparência</div>
+  <div style="display:flex;gap:9px;margin-bottom:16px;flex-wrap:wrap">
+    ${v.portraitOptions.map(function (o) {
+      return `<div${on(o.pick)} style="${s(o.style)}">
+        <div style="${s(o.boxStyle)}"><img class="adm-art" src="${esc(o.art)}" alt="" style="padding:8%"></div>
+        <div style="${s(o.labelStyle)}">${esc(o.label)}</div>
+      </div>`;
+    }).join('')}
+  </div>
 
   <div style="font-size:11px;letter-spacing:.13em;color:#75839a;text-transform:uppercase;margin-bottom:9px">Privacidade</div>
   <div style="display:flex;flex-direction:column;gap:2px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:16px;overflow:hidden;margin-bottom:16px">

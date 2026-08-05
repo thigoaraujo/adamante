@@ -57,6 +57,8 @@
       restOpen: false, restDays: [],
       // reforja (§17): repetidas na coleção, além das cópias do deck
       dupes: { c1: 6, c3: 5, c5: 5 },
+      // aparência escolhida por classe (índice em PORTRAITS)
+      portraits: { guerreiro: 0, ladino: 0, mago: 0, clerigo: 0 },
     };
     this._t = [];
     this._timerInt = null;
@@ -656,6 +658,19 @@
     this.setState({ dupes: dupes, gold: st.gold - cost });
     this.gain('REFORJADA', RAR[nextRar]);
     this.toast('Reforja concluída', REFORGE.need + ' × ' + card.nome + ' viraram ' + (produced ? produced.nome : 'uma carta') + ' · ' + RARL[nextRar] + '. −' + cost + ' de ouro.', RAR[nextRar]);
+  };
+
+  // ── seletor de aparência ──────────────────────────────────────────────────
+  P.setPortrait = function (classId, idx) {
+    var p = Object.assign({}, this.state.portraits); p[classId] = idx;
+    this.setState({ portraits: p });
+    try { localStorage.setItem('adamante.portraits', JSON.stringify(p)); } catch (e) { /* quota */ }
+  };
+  P.loadPortraits = function () {
+    try {
+      var raw = localStorage.getItem('adamante.portraits');
+      if (raw) this.state.portraits = Object.assign({}, this.state.portraits, JSON.parse(raw));
+    } catch (e) { /* corrompido ou indisponível */ }
   };
 
   P.go = function (s) { this.setState({ screen: s, obStep: this.state.obStep }); };

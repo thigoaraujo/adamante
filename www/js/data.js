@@ -96,6 +96,18 @@
   var RAR_ORDER = ['comum', 'incomum', 'rara', 'epica'];
   var REFORGE = { need: 5, cost: { comum: 120, incomum: 260, rara: 500 } };
 
+  // ── seletor de aparência: variações de personagem por classe (tiles DCSS) ───
+  // índice 0 = assets/art/cls_<classe>.png; índice N = cls_<classe>_N.png
+  var PORTRAITS = {
+    guerreiro: ['Comandante', 'Mercenária', 'Montanhês', 'Bruto'],
+    ladino: ['Assassina', 'Trapaceiro', 'Goblin', 'Espectro'],
+    mago: ['Arquimago', 'Feiticeira', 'Eremita', 'Eletromante'],
+    clerigo: ['Anjo', 'Devoto', 'Querubim', 'Sacerdote'],
+  };
+  function portraitArt(classeId, idx) {
+    return idx ? 'assets/art/cls_' + classeId + '_' + idx + '.png' : 'assets/art/cls_' + classeId + '.png';
+  }
+
   // ── guilda: convite por link e primeira meta coletiva (§15, §24 v3) ──────────
   var GUILD_INVITE = 'adamante.app/entrar/7F3QK9';
   var GUILD_GOALS = [
@@ -111,6 +123,7 @@
     STUDY: STUDY, EPIC_PRESETS: EPIC_PRESETS, EPIC: EPIC,
     GUILD_INVITE: GUILD_INVITE, GUILD_GOALS: GUILD_GOALS,
     REST: REST, WEEKDAYS: WEEKDAYS, RAR_ORDER: RAR_ORDER, REFORGE: REFORGE,
+    PORTRAITS: PORTRAITS, portraitArt: portraitArt,
     mod: function (v) { return Math.floor((v - 10) / 2); },
     xpNeed: function (n) { return Math.round(80 * Math.pow(n, 1.5) / 10) * 10; },
   };

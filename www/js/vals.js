@@ -13,6 +13,7 @@
   var GUILD_SIZE = D.GUILD_SIZE, MAJORITY = D.MAJORITY;
   var EPIC = D.EPIC, EPIC_PRESETS = D.EPIC_PRESETS, GUILD_GOALS = D.GUILD_GOALS, GUILD_INVITE = D.GUILD_INVITE;
   var REST = D.REST, WEEKDAYS = D.WEEKDAYS, RAR_ORDER = D.RAR_ORDER, REFORGE = D.REFORGE;
+  var PORTRAITS = D.PORTRAITS, portraitArt = D.portraitArt;
   var mod = C.mod, xpNeed = C.xpNeed;
 
   function vals(app) {
@@ -59,7 +60,7 @@
       var off = i - st.clsIdx, sel = off === 0;
       return {
         nome: k.nome, prim: k.prim, passiva: k.passiva, deck: k.deck,
-        art: 'assets/art/cls_' + k.id + '.png',
+        art: portraitArt(k.id, st.portraits[k.id] || 0),
         pick: function () { app.setState({ clsIdx: i }); },
         sheen: sel ? sheen : { display: 'none' },
         primStyle: Object.assign(pill(k.cor), { display: 'inline-block', marginTop: 6 }),
@@ -654,7 +655,24 @@
       isRanking: st.screen === 'ranking', isPerfil: st.screen === 'perfil',
       charName: (st.charName.trim() || 'SEM NOME').toUpperCase(),
       clsName: cls.nome, clsPrim: cls.prim, charLevel: st.level,
-      clsArt: 'assets/art/cls_' + cls.id + '.png', monArt: 'assets/art/mon_sentinela.png',
+      clsArt: portraitArt(cls.id, st.portraits[cls.id] || 0), monArt: 'assets/art/mon_sentinela.png',
+      portraitOptions: PORTRAITS[cls.id].map(function (label, idx) {
+        var sel = (st.portraits[cls.id] || 0) === idx;
+        return {
+          label: label, art: portraitArt(cls.id, idx),
+          pick: function () { app.setPortrait(cls.id, idx); },
+          style: {
+            width: 68, cursor: 'pointer', borderRadius: 12, padding: '6px 5px 5px', transition: 'all .2s',
+            background: sel ? 'rgba(217,165,68,.14)' : 'rgba(255,255,255,.04)',
+            border: '1px solid ' + (sel ? cls.cor + '99' : 'rgba(255,255,255,.1)'),
+          },
+          boxStyle: { height: 54, borderRadius: 8, overflow: 'hidden', background: 'rgba(0,0,0,.28)' },
+          labelStyle: {
+            fontSize: 9, textAlign: 'center', marginTop: 4, whiteSpace: 'nowrap', overflow: 'hidden',
+            textOverflow: 'ellipsis', color: sel ? '#f0cd85' : '#8a97ab',
+          },
+        };
+      }),
       isSplash: st.screen === 'splash', isLogin: st.screen === 'login',
       coverOn: !!st.cover,
 
