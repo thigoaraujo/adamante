@@ -325,6 +325,7 @@
           zIndex: 10 - Math.abs(Math.round(off)),
         },
         nome: c.nome, custo: c.custo, play: function () { app.tapCard(i); },
+        art: 'assets/art/card_' + c.id + '.png',
         numShort: c.dano ? c.dano + ' DANO' : c.cura ? c.cura + ' CURA' : c.def ? '+' + c.def + ' DEF' : 'EFEITO',
         numStyle: { fontFamily: "'Bebas Neue',sans-serif", fontSize: 12, letterSpacing: '.05em', color: col, marginTop: 2 },
         costStyle: {

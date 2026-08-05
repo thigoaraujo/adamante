@@ -898,7 +898,7 @@
         return `<div style="${s(c.wrapStyle)}">
           <div${on(c.play)}${hv('transform:translateY(-20px) translateZ(46px) scale(1.07);filter:brightness(1.18)')} style="${s(c.style)}">
             <div style="display:flex;align-items:center;gap:4px"><div style="${s(c.costStyle)}">${esc(c.custo)}</div><div style="flex:1"></div><div style="${s(c.rarDot)}"></div></div>
-            <div style="flex:1;border-radius:6px;border:1px dashed rgba(255,255,255,.14);background:rgba(255,255,255,.03);margin:5px 0"></div>
+            <div style="flex:1;border-radius:6px;border:1px solid rgba(255,255,255,.1);background:rgba(0,0,0,.28);margin:5px 0;overflow:hidden"><img class="adm-art" src="${esc(c.art)}" alt=""></div>
             <div style="font-family:'Bebas Neue',sans-serif;font-size:12.5px;line-height:1.02;letter-spacing:.02em">${esc(c.nome)}</div>
             <div style="${s(c.numStyle)}">${esc(c.numShort)}</div>
           </div>
