@@ -1,0 +1,25 @@
+{
+  "name": "adamante",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Adamante — RPG de hábito, com consequência real. App offline.",
+  "scripts": {
+    "build": "node build-www.js",
+    "serve": "node serve.js",
+    "sync": "npm run build && cap sync android",
+    "apk:debug": "npm run sync && cd android && gradlew.bat assembleDebug",
+    "apk:release": "npm run sync && cd android && gradlew.bat assembleRelease",
+    "aab:release": "npm run sync && cd android && gradlew.bat bundleRelease",
+    "icons": "capacitor-assets generate --assetPath resources --android --iconBackgroundColor #080b14 --iconBackgroundColorDark #080b14 --splashBackgroundColor #080b14 --splashBackgroundColorDark #080b14"
+  },
+  "dependencies": {
+    "@capacitor/android": "^6.2.0",
+    "@capacitor/core": "^6.2.0",
+    "@capacitor/splash-screen": "^6.0.3",
+    "@capacitor/status-bar": "^6.0.2"
+  },
+  "devDependencies": {
+    "@capacitor/assets": "^3.0.5",
+    "@capacitor/cli": "^6.2.0"
+  }
+}

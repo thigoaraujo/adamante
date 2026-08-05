@@ -1,0 +1,27 @@
+node_modules/
+
+# Android: só o projeto entra no git, nunca o que o Gradle produz
+android/.gradle/
+android/build/
+android/app/build/
+android/captures/
+android/local.properties
+android/.idea/
+android/app/src/main/assets/public/
+android/app/src/main/assets/capacitor.config.json
+android/app/src/main/assets/capacitor.plugins.json
+
+# assinatura de release fica fora do git, sempre
+android/keystore.properties
+*.keystore
+*.jks
+
+# APKs ficam nas releases do GitHub, não no repositório
+*.apk
+*.aab
+
+.DS_Store
+Thumbs.db
+
+# andaime de teste dentro do pacote
+www/_*
