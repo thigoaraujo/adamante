@@ -118,7 +118,8 @@
     filter:drop-shadow(0 10px 20px rgba(0,0,0,.55)); opacity:.20}
   .deco img.mir{transform:scaleX(-1)}
   @media (prefers-reduced-motion:reduce){ .deco{animation:none} }
-  @media (max-width:860px){ .deco{display:none} }
+  /* no mobile aparecem menores e mais discretos, ainda atrás do conteúdo */
+  @media (max-width:860px){ .deco img{max-width:66px; opacity:.17} }
 
   /* ── showcase: um aparelho em 3D com prévia ao vivo ───────────── */
   .showcase{display:grid; grid-template-columns:1fr minmax(320px,auto); gap:20px 48px; align-items:center}
