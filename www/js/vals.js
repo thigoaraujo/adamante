@@ -12,6 +12,7 @@
   var GUILD = D.GUILD, GEAR = D.GEAR, TRADES = D.TRADES;
   var GUILD_SIZE = D.GUILD_SIZE, MAJORITY = D.MAJORITY;
   var EPIC = D.EPIC, EPIC_PRESETS = D.EPIC_PRESETS, GUILD_GOALS = D.GUILD_GOALS, GUILD_INVITE = D.GUILD_INVITE;
+  var REST = D.REST, WEEKDAYS = D.WEEKDAYS;
   var mod = C.mod, xpNeed = C.xpNeed;
 
   function vals(app) {
@@ -571,6 +572,41 @@
     // ── guilda: estado vazio ─────────────────────────────────────────────────
     var gGoal = st.guildGoal, gGoalPick = GUILD_GOALS[st.guildGoalPick] || GUILD_GOALS[0];
 
+    // ── Descanso Sagrado: próximos 7 dias, com a regra das 12 h de antecedência
+    var restNow = new Date(), restUsed = st.restDays.length;
+    var restRows = [];
+    for (var rdi = 0; rdi < 7; rdi++) {
+      var rd = new Date(restNow.getFullYear(), restNow.getMonth(), restNow.getDate() + rdi);
+      var rIso = rd.getFullYear() + '-' + (rd.getMonth() + 1) + '-' + rd.getDate();
+      var hoursUntil = (rd.getTime() - restNow.getTime()) / 3600000;
+      var rLocked = hoursUntil < REST.antecedenceHours;
+      var rMarked = st.restDays.indexOf(rIso) >= 0;
+      var rFull = !rMarked && restUsed >= REST.cap;
+      restRows.push((function (iso, i, locked, marked, full, d) {
+        var name = i === 0 ? 'Hoje' : i === 1 ? 'Amanhã' : WEEKDAYS[d.getDay()];
+        var dateLabel = d.getDate() + '/' + (d.getMonth() + 1);
+        var disabled = locked || full;
+        return {
+          name: name, dateLabel: dateLabel, marked: marked, locked: locked,
+          reason: locked ? 'menos de 12 h de antecedência' : full ? 'limite de ' + REST.cap + ' no mês' : '',
+          toggle: locked ? function () {} : function () { app.toggleRestDay(iso); },
+          rowStyle: {
+            display: 'flex', alignItems: 'center', gap: 12, padding: '12px 13px', borderRadius: 13,
+            cursor: locked ? 'default' : 'pointer', transition: 'all .2s', opacity: disabled && !marked ? .5 : 1,
+            background: marked ? 'rgba(127,142,192,.16)' : 'rgba(255,255,255,.04)',
+            border: '1px solid ' + (marked ? 'rgba(127,142,192,.5)' : 'rgba(255,255,255,.09)'),
+          },
+          boxStyle: {
+            flex: 'none', width: 24, height: 24, borderRadius: 8, display: 'flex', alignItems: 'center',
+            justifyContent: 'center', fontSize: 14, fontWeight: 800, color: marked ? '#04140f' : 'transparent',
+            background: marked ? '#7f8ec0' : 'transparent',
+            border: '1.5px solid ' + (marked ? '#7f8ec0' : locked ? 'rgba(255,255,255,.16)' : 'rgba(255,255,255,.26)'),
+          },
+          mark: marked ? '✓' : '',
+        };
+      })(rIso, rdi, rLocked, rMarked, rFull, rd));
+    }
+
     var fatigueMsgs = {
       1: 'Sequência zerada. Um dia com todas as diárias concluídas remove 2 pontos.',
       3: 'Atributos calculados a 80% no combate. Cartas raras e épicas bloqueadas. O valor real na ficha está intacto.',
@@ -806,7 +842,7 @@
           },
         };
       }),
-      goFadiga: function () { app.toast('Descanso Sagrado', '4 de 4 folgas disponíveis neste mês. Marque com 12 horas de antecedência.', '#7f8ec0'); },
+      goFadiga: function () { app.openRest(); },
 
       attrRows: attrRows, radarPts: radarPts, radarLabels: radarLabels,
       radarNote: st.fatigue >= 3 ? 'violeta = enfraquecido pela Fadiga' : cls.prim + ' é o seu atributo primário',
@@ -1273,6 +1309,15 @@
       }),
       setFirstGuildGoal: function () { app.setFirstGuildGoal(); },
       viewSampleGuild: function () { app.setState({ guildEmpty: false }); },
+
+      // ── Descanso Sagrado ───────────────────────────────────────────────────
+      restOpen: st.restOpen,
+      restRows: restRows,
+      restUsedLabel: restUsed + ' de ' + REST.cap + ' folgas usadas neste mês',
+      restRemaining: REST.cap - restUsed,
+      openRest: function () { app.openRest(); },
+      closeRest: function () { app.closeRest(); },
+      noopStop: function () {},
 
       noop: function () { app.toast('Fora do escopo do protótipo', 'Este fluxo existe na especificação, mas não foi montado aqui.', '#8a97ab'); },
     };

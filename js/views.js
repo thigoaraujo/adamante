@@ -1395,6 +1395,35 @@ ${v.epicFormOn ? `
         <div${on(v.epicCancel)}${hv('color:#e8eef5')} style="min-height:50px;display:flex;align-items:center;padding:0 16px;border-radius:13px;border:1px solid rgba(255,255,255,.16);font-size:12.5px;color:#8a97ab;cursor:pointer">Cancelar</div>
       </div>
     </div>
+  </div>` : ''}
+
+${v.restOpen ? `
+  <div${on(v.closeRest)} style="position:absolute;inset:0;z-index:87;display:flex;flex-direction:column;justify-content:flex-end;background:rgba(4,6,12,.86);backdrop-filter:blur(12px);animation:admFadeIn .24s ease-out">
+    <div${on(v.noopStop)} style="background:linear-gradient(180deg,rgba(14,20,34,.99),rgba(8,11,20,.99));border-top:1px solid rgba(127,142,192,.34);border-radius:22px 22px 0 0;padding:20px 17px;box-shadow:0 -20px 60px rgba(0,0,0,.6);animation:admRise .34s cubic-bezier(.2,.8,.2,1);max-height:88%;overflow-y:auto">
+      <div style="width:38px;height:4px;border-radius:2px;background:rgba(255,255,255,.16);margin:0 auto 15px"></div>
+      <div style="display:flex;align-items:flex-start;gap:11px;margin-bottom:6px">
+        <div style="flex:1;min-width:0">
+          <div style="font-size:10px;letter-spacing:.2em;color:#aebdd8;text-transform:uppercase">Descanso Sagrado</div>
+          <div style="font-family:'Bebas Neue',sans-serif;font-size:26px;letter-spacing:.03em;margin-top:2px">FOLGA PLANEJADA</div>
+        </div>
+        <div style="text-align:right"><div style="font-family:'Bebas Neue',sans-serif;font-size:26px;line-height:1;color:#aebdd8">${esc(v.restRemaining)}</div><div style="font-size:8.5px;letter-spacing:.13em;color:#75839a">LIVRES</div></div>
+      </div>
+      <div style="font-size:11.5px;line-height:1.5;color:#c2cfdd;margin-bottom:14px;text-wrap:pretty">Nos dias marcados não há Fadiga e a sequência é preservada. Até 4 por mês, com no mínimo 12 h de antecedência — o app não pune quem descansa de propósito.</div>
+      <div style="font-size:10px;letter-spacing:.13em;color:#75839a;text-transform:uppercase;margin-bottom:9px">${esc(v.restUsedLabel)}</div>
+      <div style="display:flex;flex-direction:column;gap:7px">
+        ${v.restRows.map(function (r) {
+          return `<div${on(r.toggle)} style="${s(r.rowStyle)}">
+            <div style="${s(r.boxStyle)}">${esc(r.mark)}</div>
+            <div style="flex:1;min-width:0">
+              <div style="font-size:13.5px;font-weight:600;color:${r.locked ? '#68768a' : '#e8eef5'}">${esc(r.name)} <span style="font-size:11px;color:#75839a;font-weight:400">${esc(r.dateLabel)}</span></div>
+              ${r.reason ? `<div style="font-size:10.5px;color:#7f8ec0;margin-top:2px">${esc(r.reason)}</div>` : `<div style="font-size:10.5px;color:#68768a;margin-top:2px">${r.marked ? 'folga marcada · sem Fadiga' : 'toque para marcar folga'}</div>`}
+            </div>
+          </div>`;
+        }).join('')}
+      </div>
+      <div${on(v.closeRest)}${hv('background:rgba(255,255,255,.1)')} style="margin-top:16px;min-height:50px;display:flex;align-items:center;justify-content:center;border-radius:13px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);font-family:'Bebas Neue',sans-serif;font-size:17px;letter-spacing:.08em;color:#e8eef5;cursor:pointer">FECHAR</div>
+      <div style="height:6px"></div>
+    </div>
   </div>` : ''}`;
   }
 

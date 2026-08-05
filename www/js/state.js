@@ -8,7 +8,7 @@
   var ATTRS = D.ATTRS, CLASSES = D.CLASSES, CARDS = D.CARDS;
   var ENEMY_DECK = D.ENEMY_DECK, ENEMY_SCRIPT = D.ENEMY_SCRIPT;
   var GUILD = D.GUILD, TRADES = D.TRADES, MAJORITY = D.MAJORITY;
-  var STUDY = D.STUDY, EPIC = D.EPIC, EPIC_PRESETS = D.EPIC_PRESETS, GUILD_GOALS = D.GUILD_GOALS;
+  var STUDY = D.STUDY, EPIC = D.EPIC, EPIC_PRESETS = D.EPIC_PRESETS, GUILD_GOALS = D.GUILD_GOALS, REST = D.REST;
   var mod = C.mod, xpNeed = C.xpNeed;
 
   // relógio do cronômetro: o protótipo comprime os 25 min num tempo de demonstração
@@ -52,6 +52,8 @@
       // guilda: estado vazio, convite por link e primeira meta coletiva (§15)
       guildEmpty: !!this.props.guildEmpty,
       inviteCopied: false, guildGoal: null, guildGoalPick: 0, guildGoalForm: false,
+      // Descanso Sagrado (§12.3): folgas planejadas do mês
+      restOpen: false, restDays: [],
     };
     this._t = [];
     this._timerInt = null;
@@ -392,6 +394,21 @@
     var g = GUILD_GOALS[this.state.guildGoalPick];
     this.setState({ guildGoal: { title: g.title, target: g.target, cat: g.cat } });
     this.toast('Primeira meta definida', 'A guilda nasce com um objetivo comum. Fechá-lo libera recompensa para todos os membros.', '#4fcbb4');
+  };
+
+  // ── §12.3 Descanso Sagrado: folga planejada, sem Fadiga e com sequência intacta
+  P.openRest = function () { this.setState({ restOpen: true }); };
+  P.closeRest = function () { this.setState({ restOpen: false }); };
+  P.toggleRestDay = function (iso) {
+    var days = this.state.restDays.slice(), i = days.indexOf(iso);
+    if (i >= 0) { days.splice(i, 1); this.setState({ restDays: days }); return; }
+    if (days.length >= REST.cap) {
+      this.toast('Limite de folgas', 'São até ' + REST.cap + ' Descansos Sagrados por mês. Desmarque um para trocar.', '#d9a544');
+      return;
+    }
+    days.push(iso);
+    this.setState({ restDays: days });
+    this.toast('Folga marcada', 'Nesse dia não há Fadiga e a sequência é preservada — descanso planejado não pune.', '#7f8ec0');
   };
 
   // ── batalha ───────────────────────────────────────────────────────────────

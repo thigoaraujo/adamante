@@ -159,6 +159,9 @@ declaração entra com `!important` numa folha própria.
   (800–2.000 XP conforme o prazo, +500 ouro, +3 pontos) e vencimento sem punição, recriável.
 - **Estado vazio de guilda** (§15) — convite por link e definição da primeira meta coletiva.
   Abra com `app.html?guild=empty` ou pelo atalho "ver guilda de exemplo".
+- **Descanso Sagrado** (§12.3) — toque no indicador de Fadiga, na tela Início, para marcar
+  até 4 folgas planejadas no mês, com a trava de 12 h de antecedência. Nos dias marcados não
+  há Fadiga e a sequência é preservada.
 
 ## O que ainda falta, conforme o próprio documento de design
 

@@ -88,6 +88,10 @@
   ];
   var EPIC = { minDays: 15, maxDays: 90, gold: 500, points: 3 };
 
+  // ── Descanso Sagrado (§12.3): até 4 folgas/mês, com 12 h de antecedência ────
+  var REST = { cap: 4, antecedenceHours: 12 };
+  var WEEKDAYS = ['dom', 'seg', 'ter', 'qua', 'qui', 'sex', 'sáb'];
+
   // ── guilda: convite por link e primeira meta coletiva (§15, §24 v3) ──────────
   var GUILD_INVITE = 'adamante.app/entrar/7F3QK9';
   var GUILD_GOALS = [
@@ -102,6 +106,7 @@
     GUILD_SIZE: GUILD_SIZE, MAJORITY: MAJORITY, GUILD: GUILD, GEAR: GEAR, TRADES: TRADES,
     STUDY: STUDY, EPIC_PRESETS: EPIC_PRESETS, EPIC: EPIC,
     GUILD_INVITE: GUILD_INVITE, GUILD_GOALS: GUILD_GOALS,
+    REST: REST, WEEKDAYS: WEEKDAYS,
     mod: function (v) { return Math.floor((v - 10) / 2); },
     xpNeed: function (n) { return Math.round(80 * Math.pow(n, 1.5) / 10) * 10; },
   };
