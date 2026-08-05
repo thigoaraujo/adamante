@@ -31,7 +31,12 @@ const COPIAR = [
   'icons/icon-192.png', 'icons/icon-512.png', 'icons/icon-maskable-512.png', 'icons/apple-touch-icon.png',
 ];
 
-function rmrf(p) { fs.rmSync(p, { recursive: true, force: true }); }
+// esvazia a pasta em vez de apagá-la: no Windows, remover o diretório estala com
+// EPERM se qualquer coisa estiver servindo www/ naquele momento
+function limpar(p) {
+  if (!fs.existsSync(p)) return;
+  for (const f of fs.readdirSync(p)) fs.rmSync(path.join(p, f), { recursive: true, force: true });
+}
 function mkdirp(p) { fs.mkdirSync(p, { recursive: true }); }
 function copiar(rel) {
   const de = path.join(RAIZ, rel), para = path.join(WWW, rel);
@@ -41,8 +46,8 @@ function copiar(rel) {
 }
 
 // ── limpa e copia ────────────────────────────────────────────────────────────
-rmrf(WWW);
 mkdirp(WWW);
+limpar(WWW);
 
 const arquivos = COPIAR.map(copiar);
 
@@ -101,8 +106,16 @@ arquivos.push('manifest.webmanifest');
 
 // ── service worker ───────────────────────────────────────────────────────────
 const lista = ['./'].concat(arquivos.slice().sort());
+// a versão do cache tem que depender só do conteúdo, nunca de como o checkout
+// converteu as quebras de linha — senão o mesmo commit gera hash diferente
+// em cada máquina e o cache é invalidado sem motivo
+const TEXTO = /\.(html|js|css|json|webmanifest|svg)$/i;
 const hash = crypto.createHash('sha1');
-for (const rel of arquivos.slice().sort()) hash.update(rel).update(fs.readFileSync(path.join(WWW, rel)));
+for (const rel of arquivos.slice().sort()) {
+  let bytes = fs.readFileSync(path.join(WWW, rel));
+  if (TEXTO.test(rel)) bytes = Buffer.from(bytes.toString('utf8').replace(/\r\n/g, '\n'), 'utf8');
+  hash.update(rel).update(bytes);
+}
 const versao = hash.digest('hex').slice(0, 12);
 
 const sw = `// GERADO por build-www.js — nao editar a mao.
