@@ -81,9 +81,9 @@ teste('soma de incrementos atravessa as faixas certo', () => {
 // ── §10 curva de XP ─────────────────────────────────────────────────────────
 grupo('§10 experiência e níveis');
 teste('a tabela do documento confere', () => {
-  // §10 do GDD. O nível 19 da tabela impressa diz 6620, mas a fórmula do próprio
-  // documento — round(80 × n^1.5, dezena) — dá 6630 (80 × 19^1.5 = 6625,53).
-  // A fórmula é normativa, a tabela é ilustrativa: é erro de digitação no GDD.
+  // §10 do GDD. O nível 19 da tabela dizia 6620 por erro de digitação; a fórmula
+  // do próprio documento — round(80 × n^1.5, dezena) — dá 6630 (80 × 19^1.5 =
+  // 6625,53). Corrigido no docs/gdd.md; os outros 18 níveis já conferiam.
   const tabela = { 1: 80, 2: 230, 3: 420, 4: 640, 5: 890, 6: 1180, 7: 1480, 8: 1810, 9: 2160, 10: 2530, 11: 2920, 12: 3330, 13: 3750, 14: 4190, 15: 4650, 16: 5120, 17: 5610, 18: 6110, 19: 6630 };
   for (const n of Object.keys(tabela)) {
     assert.strictEqual(C.xpNeed(Number(n)), tabela[n], `nível ${n}`);

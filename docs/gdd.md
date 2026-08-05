@@ -264,7 +264,7 @@ XP para subir do nível n para o nível n+1 = round(80 × n^1.5, dezena mais pr�
 | 6 | 1.180 | 16 | 5.120 |
 | 7 | 1.480 | 17 | 5.610 |
 | 8 | 1.810 | 18 | 6.110 |
-| 9 | 2.160 | 19 | 6.620 |
+| 9 | 2.160 | 19 | 6.630 |
 | 10 | 2.530 | 20 | — (máximo) |
 
 **Ritmo esperado:** um usuário ativo ganha entre 100 e 150 XP por dia. Chega ao nível 2 no primeiro dia, ao nível 5 na primeira semana, ao nível 10 em cerca de dois meses e ao nível 20 em aproximadamente 12 a 14 meses de uso consistente.

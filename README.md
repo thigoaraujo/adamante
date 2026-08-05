@@ -97,11 +97,43 @@ node serve.js www 8100     # http://127.0.0.1:8100/
 Não há projeto iOS nativo: o GDD prevê React Native para o produto, e para o protótipo o PWA
 entrega a mesma tela cheia sem precisar de Mac, Xcode e conta de desenvolvedor.
 
+## Backend (Supabase)
+
+`supabase/migrations/` tem o banco inteiro, na ordem em que se aplica:
+
+| Arquivo | O que é |
+|---|---|
+| `0001_schema.sql` | tabelas e índices do §22 |
+| `0002_rls.sql` | Row Level Security em toda tabela com dado pessoal |
+| `0003_ranking.sql` | a view pública de ranking, que não alcança composição corporal |
+| `0004_regras.sql` | as regras no servidor, espelho de `js/core.js` |
+| `0005_recompensas.sql` | as funções que creditam XP, ouro e ponto |
+
+**O cliente não consegue se dar recompensa.** Um trigger rejeita qualquer `UPDATE` em
+nível, XP, ouro, pontos, fadiga, sequência ou vitórias que não venha de dentro das funções
+de `0005` — nem o dono da linha passa. É o §21.1 do GDD cumprido de verdade: o cliente
+chama `concluir_missao()`, e o servidor decide quanto vale.
+
+**O ranking não pode vazar corpo por acidente.** A view de `0003` não tem junção com
+`body_compositions` nem com `users`. Não é omissão na consulta: não existe caminho para esse
+dado chegar lá depois, e o teste verifica isso lendo a definição da view.
+
+Ainda **falta ligar o cliente**: não existe `js/api.js`, o app continua rodando 100% local.
+E falta o projeto no Supabase — que só você pode criar, porque exige conta.
+
 ## Testes
 
 ```bash
-npm test     # node test/core.test.js
+npm test              # as duas suítes
+npm run test:core     # 41 testes das regras no cliente
+npm run test:servidor # 41 testes do banco, num Postgres descartável
 ```
+
+O de servidor não precisa de Docker nem da CLI do Supabase: acha o PostgreSQL instalado,
+sobe um cluster temporário numa porta própria, aplica as migrations, prova que o RLS isola,
+que a trava de recompensa segura, e que as **duas metades da camada de regras devolvem o
+mesmo número** — 74 valores conferidos entre o SQL e o `core.js`. No fim derruba e apaga o
+cluster. Se não achar Postgres, ele avisa e sai sem falhar (`PG_BIN` força o caminho).
 
 41 testes sobre a camada de regras, cobrindo os extremos que o GDD §21.1 lista: usuário sem
 bioimpedância, nível 1 e 20, atributo 1 e 20, fadiga máxima, medição pior que a anterior.
@@ -109,9 +141,9 @@ Sem framework — são funções puras, `assert` basta.
 
 Dois achados dos testes ficam registrados aqui:
 
-- **A tabela de XP do GDD tem um erro de digitação no nível 19.** A tabela impressa diz 6.620;
-  a fórmula do próprio documento, `round(80 × n^1.5, dezena)`, dá 6.630 (80 × 19^1.5 =
-  6.625,53). A fórmula é normativa, então o código segue ela.
+- **A tabela de XP do GDD tinha um erro de digitação no nível 19:** dizia 6.620, quando a
+  fórmula do próprio documento — `round(80 × n^1.5, dezena)` — dá 6.630 (80 × 19^1.5 =
+  6.625,53). Corrigido no `docs/gdd.md`. Os outros 18 níveis conferem com a fórmula.
 - **Ponto flutuante comia um degrau na bioimpedância.** `1.2 / 0.4` dá `2.9999999999999996`
   em binário, então um ganho de 1,2 kg de massa magra valia 2 degraus em vez de 3. O cálculo
   passou a contar em gramas (`core.js → pontosDaMedicao`).
