@@ -153,6 +153,23 @@
       if (f && /^image\//.test(f.type)) readPhoto(slot.getAttribute('data-slot'), f);
     });
 
+    // ── voltar: botão físico no APK, histórico no navegador e no PWA ─────────
+    var cap = global.Capacitor, capApp = cap && cap.Plugins && cap.Plugins.App;
+    if (capApp && capApp.addListener) {
+      capApp.addListener('backButton', function () {
+        if (!app.back() && capApp.exitApp) capApp.exitApp();
+      });
+    } else if (global.history && global.history.pushState) {
+      // no navegador não há botão físico: usa uma entrada de histórico como
+      // sentinela, para o gesto de voltar navegar dentro do app
+      history.replaceState({ adm: 0 }, '');
+      history.pushState({ adm: 1 }, '');
+      global.addEventListener('popstate', function () {
+        if (app.back()) history.pushState({ adm: 1 }, '');
+        else history.back();
+      });
+    }
+
     draw();
     app.mount();
   }

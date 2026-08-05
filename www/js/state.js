@@ -813,6 +813,51 @@
   };
 
   P.go = function (s) { this.setState({ screen: s, obStep: this.state.obStep }); };
+
+  // ── voltar (botão físico do Android, e histórico no PWA) ──────────────────
+  // Devolve true quando tratou o voltar aqui dentro; false quando não há para
+  // onde voltar e o app deve sair. Sem isso, o voltar fecha o app de qualquer
+  // tela, que é o comportamento padrão de um WebView.
+  var PAI = { medicao: 'ficha', thread: 'guilda', perfil: 'inicio' };
+  P.back = function () {
+    var st = this.state;
+
+    // 1) transição de íris em curso: engole o voltar para não cortar a animação
+    if (st.cover || st.wipe) return true;
+
+    // 2) overlays, do mais superficial para o mais profundo
+    if (st.preview !== null) { this.closePreview(); return true; }
+    if (st.deleteAsk) { this.cancelDelete(); return true; }
+    if (st.restartAsk) { this.cancelRestart(); return true; }
+    if (st.restOpen) { this.closeRest(); return true; }
+    if (st.epicForm) { this.closeEpicForm(); return true; }
+    if (st.timer) { this.closeTimer(); return true; }
+    if (st.levelUp) return true;          // exige distribuir os pontos, é passo do jogo
+
+    // 3) combate: o voltar sai da partida, não do app. Derrota não tira nada,
+    //    então sair no meio também não pode custar caro (§14.4)
+    if (st.battle) {
+      if (st.battle.result) this.resetBattle(); else this.fleeBattle();
+      return true;
+    }
+
+    // 4) abertura: login e cadastro andam entre si; o resto sai
+    if (st.screen === 'cadastro') { this.transitionTo('login'); return true; }
+    if (st.screen === 'splash' || st.screen === 'login') return false;
+
+    // 5) onboarding: recua um passo até o primeiro
+    if (st.screen === 'onboarding') {
+      if (st.obStep > 0) { this.obBack(); return true; }
+      return false;
+    }
+
+    // 6) telas filhas voltam para a mãe
+    if (PAI[st.screen]) { this.go(PAI[st.screen]); return true; }
+
+    // 7) aba secundária volta para o Início; no Início, sai do app
+    if (st.screen !== 'inicio') { this.go('inicio'); return true; }
+    return false;
+  };
   P.flip = function (id) {
     var f = Object.assign({}, this.state.flipped); f[id] = !f[id];
     this.setState({ flipped: f });

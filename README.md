@@ -50,14 +50,34 @@ npm run apk:debug     # android/app/build/outputs/apk/debug/app-debug.apk
 Instalação direta, fora da Play Store: o Android vai pedir autorização para instalar de
 fontes desconhecidas. O app roda 100% offline, sem conta e sem servidor.
 
-Para um APK assinado de release, crie a chave e o `android/keystore.properties` (nenhum dos
-dois entra no git):
+### Android · release assinado
+
+`android/app/build.gradle` lê a assinatura de `android/keystore.properties`. Sem esse
+arquivo o build de release sai **sem assinar** (`app-release-unsigned.apk`).
 
 ```bash
-keytool -genkey -v -keystore ../keystores/adamante.keystore \
-  -alias adamante -keyalg RSA -keysize 2048 -validity 10000
-printf 'storeFile=../../keystores/adamante.keystore\nstorePassword=SUA_SENHA\nkeyAlias=adamante\nkeyPassword=SUA_SENHA\n' > android/keystore.properties
-npm run apk:release
+keytool -genkeypair -v -keystore C:/Users/SEU_USUARIO/keystores/adamante.keystore \
+  -alias adamante -keyalg RSA -keysize 4096 -validity 10000
+npm run apk:release   # android/app/build/outputs/apk/release/app-release.apk
+```
+
+O `keystore.properties` fica assim — use **caminho absoluto** no `storeFile`, porque o
+`file()` do Gradle resolve relativo a `android/app/`, não à raiz do projeto:
+
+```properties
+storeFile=C:/Users/SEU_USUARIO/keystores/adamante.keystore
+storePassword=...
+keyAlias=adamante
+keyPassword=...
+```
+
+Nem a chave nem o `keystore.properties` entram no git. **Guarde os dois:** perder a chave
+significa não conseguir mais atualizar o app na Play Store sob a mesma identidade.
+
+Conferir a assinatura:
+
+```bash
+apksigner verify --verbose --print-certs android/app/build/outputs/apk/release/app-release.apk
 ```
 
 ### iPhone · PWA
@@ -147,7 +167,13 @@ declaração entra com `!important` numa folha própria.
    adiado agora desiste se a batalha já não existe (`state.js → commitCard`).
 3. **Regras centralizadas** — o documento repetia as fórmulas dentro da lógica de tela; aqui
    elas moram só em `core.js`, como a especificação manda.
-4. **Relógio do cronômetro acelerado** — o cronômetro de estudo (validação de camada 2) roda a
+4. **Botão voltar do Android** — o documento de design não tem esse conceito, e um WebView
+   sem tratamento fecha o app a cada toque em voltar. `state.js → back()` define a hierarquia:
+   overlay aberto fecha primeiro, combate sai da partida, tela filha volta para a mãe
+   (`medicao → ficha`, `thread → guilda`, `perfil → inicio`), aba secundária volta para o
+   Início, e só no Início o voltar sai do app. No navegador e no PWA a mesma função responde
+   ao gesto de voltar, por uma entrada sentinela no histórico (`app.js`).
+5. **Relógio do cronômetro acelerado** — o cronômetro de estudo (validação de camada 2) roda a
    mecânica real: dois blocos de foco, pausa entre eles e detecção de app em segundo plano, que
    invalida o bloco em curso (`app.js → visibilitychange`). Só o relógio é comprimido para caber
    numa demonstração; o app real conta 25 minutos por bloco. A tela avisa isso.
