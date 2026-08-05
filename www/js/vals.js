@@ -12,7 +12,7 @@
   var GUILD = D.GUILD, GEAR = D.GEAR, TRADES = D.TRADES;
   var GUILD_SIZE = D.GUILD_SIZE, MAJORITY = D.MAJORITY;
   var EPIC = D.EPIC, EPIC_PRESETS = D.EPIC_PRESETS, GUILD_GOALS = D.GUILD_GOALS, GUILD_INVITE = D.GUILD_INVITE;
-  var REST = D.REST, WEEKDAYS = D.WEEKDAYS;
+  var REST = D.REST, WEEKDAYS = D.WEEKDAYS, RAR_ORDER = D.RAR_ORDER, REFORGE = D.REFORGE;
   var mod = C.mod, xpNeed = C.xpNeed;
 
   function vals(app) {
@@ -279,6 +279,35 @@
         },
         rarStyle: pill(col),
         numStyle: { fontFamily: "'Bebas Neue',sans-serif", fontSize: 20, letterSpacing: '.03em', color: col },
+      };
+    });
+
+    // ── reforja (§17): pilhas de repetidas que dá para subir de raridade ─────
+    var reforjaRows = CARDS.filter(function (c) {
+      return RAR_ORDER.indexOf(c.rar) < RAR_ORDER.length - 1 && (st.dupes[c.id] || 0) > 0;
+    }).map(function (c) {
+      var have = st.dupes[c.id] || 0;
+      var nextRar = RAR_ORDER[RAR_ORDER.indexOf(c.rar) + 1];
+      var cost = REFORGE.cost[c.rar];
+      var enough = have >= REFORGE.need, ready = enough && st.gold >= cost;
+      var curCol = RAR[c.rar], nextCol = RAR[nextRar];
+      return {
+        nome: c.nome, countLabel: have + '/' + REFORGE.need + ' repetidas', costLabel: cost + ' ouro',
+        curLabel: RARL[c.rar], nextLabel: RARL[nextRar],
+        curChip: pill(curCol), nextChip: pill(nextCol),
+        reforge: function () { app.reforge(c.id); },
+        wrapStyle: {
+          background: 'rgba(255,255,255,.04)', borderRadius: 14, padding: '12px 13px',
+          border: '1px solid ' + (ready ? nextCol + '66' : 'rgba(255,255,255,.09)'), transition: 'border-color .25s',
+        },
+        barStyle: { height: '100%', width: Math.min(100, have / REFORGE.need * 100) + '%', background: 'linear-gradient(90deg,' + curCol + ',' + nextCol + ')', borderRadius: 3, transition: 'width .4s cubic-bezier(.2,.8,.2,1)' },
+        btnLabel: ready ? 'REFORJAR' : enough ? 'OURO INSUFICIENTE' : 'FALTAM ' + (REFORGE.need - have),
+        btnStyle: {
+          minHeight: 42, display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: 11,
+          fontFamily: "'Bebas Neue',sans-serif", fontSize: 15, letterSpacing: '.08em', cursor: ready ? 'pointer' : 'default',
+          background: ready ? 'linear-gradient(135deg,' + nextCol + ',' + nextCol + 'bb)' : 'rgba(255,255,255,.05)',
+          border: ready ? 'none' : '1px solid rgba(255,255,255,.1)', color: ready ? '#04141f' : '#68768a',
+        },
       };
     });
 
@@ -863,6 +892,7 @@
       registrarMedicao: function () { app.registrarMedicao(); }, evoBars: evoBars,
 
       collection: collection, deckSummary: '8 cartas únicas · 20 no deck ativo · fabricadas por ação real',
+      reforjaRows: reforjaRows, reforjaEmpty: reforjaRows.length === 0,
       deckStats: [
         { val: 20, label: 'no deck', color: '#e8eef5' }, { val: 8, label: 'únicas', color: '#6fc8ee' },
         { val: 1, label: 'épica', color: '#d9a544' }, { val: '2,1', label: 'custo méd.', color: '#4fcbb4' },

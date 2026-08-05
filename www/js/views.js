@@ -679,6 +679,32 @@
     }).join('')}
   </div>
 
+  <div style="font-size:11px;letter-spacing:.13em;color:#75839a;text-transform:uppercase;margin-bottom:10px">Reforja · 5 repetidas viram 1 superior</div>
+  ${v.reforjaEmpty ? `
+  <div style="border:1px dashed rgba(255,255,255,.14);border-radius:14px;padding:13px 14px;margin-bottom:18px;font-size:12px;color:#8a97ab;line-height:1.5;text-wrap:pretty">Junte 5 cópias repetidas da mesma carta para forjar uma de raridade acima. Repetidas vêm de missões que fabricam a carta que você já tem.</div>` : `
+  <div style="display:flex;flex-direction:column;gap:9px;margin-bottom:18px">
+    ${v.reforjaRows.map(function (r) {
+      return `<div style="${s(r.wrapStyle)}">
+        <div style="display:flex;align-items:center;gap:9px;margin-bottom:10px">
+          <div style="flex:1;min-width:0">
+            <div style="font-size:13.5px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${esc(r.nome)}</div>
+            <div style="display:flex;align-items:center;gap:6px;margin-top:5px">
+              <span style="${s(r.curChip)}">${esc(r.curLabel)}</span>
+              <span style="font-family:'Bebas Neue',sans-serif;font-size:14px;color:#8a97ab">›</span>
+              <span style="${s(r.nextChip)}">${esc(r.nextLabel)}</span>
+            </div>
+          </div>
+          <div style="text-align:right">
+            <div style="font-size:11.5px;color:#c2cfdd">${esc(r.countLabel)}</div>
+            <div style="display:flex;align-items:center;gap:4px;justify-content:flex-end;margin-top:2px"><div style="width:6px;height:6px;border-radius:50%;background:#e8c46a"></div><span style="font-size:11px;color:#e8c46a">${esc(r.costLabel)}</span></div>
+          </div>
+        </div>
+        <div style="height:5px;background:rgba(255,255,255,.08);border-radius:3px;overflow:hidden;margin-bottom:11px"><div style="${s(r.barStyle)}"></div></div>
+        <div${on(r.reforge)}${hv('filter:brightness(1.08)')} style="${s(r.btnStyle)}">${esc(r.btnLabel)}</div>
+      </div>`;
+    }).join('')}
+  </div>`}
+
   <div style="font-size:11px;letter-spacing:.13em;color:#75839a;text-transform:uppercase;margin-bottom:10px">Coleção · toque para virar</div>
   <div style="display:grid;grid-template-columns:1fr 1fr;gap:11px">
     ${v.collection.map(function (c) {

@@ -162,6 +162,9 @@ declaração entra com `!important` numa folha própria.
 - **Descanso Sagrado** (§12.3) — toque no indicador de Fadiga, na tela Início, para marcar
   até 4 folgas planejadas no mês, com a trava de 12 h de antecedência. Nos dias marcados não
   há Fadiga e a sequência é preservada.
+- **Reforja de cartas** (§17) — na tela Deck, 5 cópias repetidas da mesma carta viram 1 de
+  raridade superior, gastando ouro. O custo sobe com a raridade; a barra mostra o progresso
+  até as 5 cópias, e cartas épicas não têm nível acima.
 
 ## O que ainda falta, conforme o próprio documento de design
 

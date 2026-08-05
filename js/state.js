@@ -9,6 +9,7 @@
   var ENEMY_DECK = D.ENEMY_DECK, ENEMY_SCRIPT = D.ENEMY_SCRIPT;
   var GUILD = D.GUILD, TRADES = D.TRADES, MAJORITY = D.MAJORITY;
   var STUDY = D.STUDY, EPIC = D.EPIC, EPIC_PRESETS = D.EPIC_PRESETS, GUILD_GOALS = D.GUILD_GOALS, REST = D.REST;
+  var RAR = D.RAR, RARL = D.RARL, RAR_ORDER = D.RAR_ORDER, REFORGE = D.REFORGE;
   var mod = C.mod, xpNeed = C.xpNeed;
 
   // relógio do cronômetro: o protótipo comprime os 25 min num tempo de demonstração
@@ -54,6 +55,8 @@
       inviteCopied: false, guildGoal: null, guildGoalPick: 0, guildGoalForm: false,
       // Descanso Sagrado (§12.3): folgas planejadas do mês
       restOpen: false, restDays: [],
+      // reforja (§17): repetidas na coleção, além das cópias do deck
+      dupes: { c1: 6, c3: 5, c5: 5 },
     };
     this._t = [];
     this._timerInt = null;
@@ -634,6 +637,25 @@
     this.setState({ tradeState: ts });
     if (accept) this.toast('Troca concluída', 'As cartas mudaram de deck. Nenhum ouro envolvido.', '#4fcbb4');
     else this.toast('Troca recusada', TRADES[i].de + ' foi avisado.', '#8a97ab');
+  };
+
+  // ── §17 reforja: 5 repetidas da mesma carta viram 1 de raridade superior ──
+  P.reforge = function (cardId) {
+    var st = this.state, card = CARDS.find(function (c) { return c.id === cardId; });
+    if (!card) return;
+    var nextRar = RAR_ORDER[RAR_ORDER.indexOf(card.rar) + 1];
+    if (!nextRar) { this.toast('Já é o topo', 'Cartas épicas não têm raridade superior.', '#d9a544'); return; }
+    var have = st.dupes[cardId] || 0;
+    if (have < REFORGE.need) { this.toast('Faltam repetidas', 'A reforja precisa de ' + REFORGE.need + ' cópias da mesma carta.', '#6fc8ee'); return; }
+    var cost = REFORGE.cost[card.rar];
+    if (st.gold < cost) { this.toast('Ouro insuficiente', 'Reforjar uma carta ' + RARL[card.rar] + ' custa ' + cost + ' de ouro.', '#d9a544'); return; }
+    var produced = CARDS.find(function (c) { return c.rar === nextRar && c.id !== cardId; });
+    var dupes = Object.assign({}, st.dupes);
+    dupes[cardId] = have - REFORGE.need;
+    if (produced) dupes[produced.id] = (dupes[produced.id] || 0) + 1;
+    this.setState({ dupes: dupes, gold: st.gold - cost });
+    this.gain('REFORJADA', RAR[nextRar]);
+    this.toast('Reforja concluída', REFORGE.need + ' × ' + card.nome + ' viraram ' + (produced ? produced.nome : 'uma carta') + ' · ' + RARL[nextRar] + '. −' + cost + ' de ouro.', RAR[nextRar]);
   };
 
   P.go = function (s) { this.setState({ screen: s, obStep: this.state.obStep }); };
