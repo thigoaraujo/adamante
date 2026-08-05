@@ -3,155 +3,426 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Adamante · protótipo interativo</title>
+<title>Adamante · RPG de hábito com consequência real</title>
 <link rel="icon" href="assets/adamante-shield.webp">
+<meta name="theme-color" content="#080b14">
+<meta name="description" content="Um RPG mobile em que treino, estudo e trabalho reais viram atributos, cartas e batalhas. Protótipo jogável — abra no navegador ou instale.">
 <link rel="stylesheet" href="fonts/fonts.css">
 <style>
-  body{margin:0;background:#05070c}
-  a{color:#6fc8ee;text-decoration:none;border-bottom:1px solid rgba(111,200,238,.35)}
-  a:hover{color:#b9d2fc;border-bottom-color:rgba(185,210,252,.6)}
-  iframe{border:0;display:block;width:100%;height:100%;background:#080b14}
+  :root{
+    --bg:#05070c; --panel:rgba(255,255,255,.045); --line:rgba(255,255,255,.09);
+    --ink:#e8eef5; --mut:#9fadc0; --dim:#68768a; --gold:#e8c46a; --gold2:#d9a544;
+    --blue:#6fc8ee; --teal:#4fcbb4; --violet:#7f8ec0;
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{
+    margin:0; background:var(--bg); color:var(--ink);
+    font-family:Karla,system-ui,sans-serif; line-height:1.6; overflow-x:hidden;
+    -webkit-font-smoothing:antialiased;
+  }
+  .bg{
+    position:fixed; inset:0; z-index:-2; pointer-events:none;
+    background:
+      radial-gradient(80% 50% at 15% -5%,#141a3c 0%,rgba(7,8,15,0) 55%),
+      radial-gradient(60% 45% at 95% 8%,rgba(111,200,238,.10) 0%,rgba(7,8,15,0) 60%),
+      radial-gradient(70% 50% at 88% 102%,rgba(217,165,68,.12) 0%,rgba(7,8,15,0) 62%),
+      var(--bg);
+  }
+  .grid-bg{
+    position:fixed; inset:0; z-index:-1; opacity:.04; pointer-events:none;
+    background-image:linear-gradient(rgba(255,255,255,.7) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.7) 1px,transparent 1px);
+    background-size:38px 38px;
+    -webkit-mask-image:linear-gradient(180deg,#000,transparent 70%);
+    mask-image:linear-gradient(180deg,#000,transparent 70%);
+  }
+  .wrap{max-width:1040px; margin:0 auto; padding:0 24px}
+  .disp{font-family:'Bebas Neue',sans-serif; letter-spacing:.03em; line-height:.95; text-wrap:balance}
+  .eyebrow{font-size:11px; letter-spacing:.22em; text-transform:uppercase; color:var(--gold)}
+  a{color:var(--blue); text-decoration:none}
+  a:hover{color:#b9e4fb}
+  code{color:var(--mut); font-size:.92em; background:rgba(255,255,255,.05); padding:1px 5px; border-radius:5px}
+  iframe{border:0; display:block; width:100%; height:100%; background:#080b14}
+  .ic{width:1em; height:1em; display:inline-block; vertical-align:-.14em; stroke:currentColor; stroke-width:1.7; fill:none; stroke-linecap:round; stroke-linejoin:round}
+
+  /* ── header / nav ─────────────────────────────────────────────── */
+  header.nav{
+    position:sticky; top:0; z-index:40; backdrop-filter:blur(14px);
+    background:linear-gradient(180deg,rgba(5,7,12,.86),rgba(5,7,12,.4));
+    border-bottom:1px solid rgba(255,255,255,.06);
+  }
+  header.nav .wrap{display:flex; align-items:center; gap:12px; height:62px}
+  header.nav img{height:30px; width:auto; filter:drop-shadow(0 0 14px rgba(111,200,238,.4))}
+  header.nav .name{font-family:'Bebas Neue',sans-serif; font-size:22px; letter-spacing:.18em}
+  header.nav .spacer{flex:1}
+  header.nav .navlink{font-size:13px; color:var(--mut); padding:8px 4px}
+  header.nav .navlink:hover{color:var(--ink)}
+  .btn{
+    display:inline-flex; align-items:center; gap:8px; min-height:44px; padding:0 18px; border-radius:12px;
+    font-family:'Bebas Neue',sans-serif; font-size:16px; letter-spacing:.09em; cursor:pointer; transition:filter .2s, transform .2s;
+  }
+  .btn:hover{filter:brightness(1.08); transform:translateY(-1px)}
+  .btn-gold{background:linear-gradient(135deg,var(--gold2),#b8842c); color:#191202; box-shadow:0 10px 26px rgba(217,165,68,.24)}
+  .btn-ghost{background:rgba(255,255,255,.05); border:1px solid rgba(255,255,255,.14); color:var(--ink)}
+  .btn-blue{background:rgba(111,200,238,.12); border:1px solid rgba(111,200,238,.4); color:var(--blue)}
+  @media (max-width:640px){ header.nav .navlink{display:none} }
+
+  /* ── hero ─────────────────────────────────────────────────────── */
+  .hero{padding:64px 0 30px; position:relative}
+  .hero .badge{display:inline-flex; align-items:center; gap:8px; padding:6px 12px; border-radius:100px;
+    background:rgba(79,203,180,.1); border:1px solid rgba(79,203,180,.3); font-size:12px; color:#a7ead9; margin-bottom:22px}
+  .hero .badge .dot{width:7px; height:7px; border-radius:50%; background:var(--teal); box-shadow:0 0 8px var(--teal); animation:pulse 2.4s ease-in-out infinite}
+  .hero h1{font-size:clamp(44px,8.5vw,86px); margin:0 0 18px}
+  .hero h1 .g{color:var(--gold2)}
+  .hero p.lead{font-size:clamp(15px,2.4vw,18px); color:var(--mut); max-width:60ch; margin:0 0 26px}
+  .hero .cta{display:flex; flex-wrap:wrap; gap:12px}
+  .hero .stats{display:flex; flex-wrap:wrap; gap:26px; margin-top:34px}
+  .hero .stat .n{font-family:'Bebas Neue',sans-serif; font-size:34px; line-height:1; color:var(--ink)}
+  .hero .stat .l{font-size:11px; letter-spacing:.1em; color:var(--dim); text-transform:uppercase; margin-top:3px}
+  .hero .stat .n.gold{color:var(--gold)} .hero .stat .n.blue{color:var(--blue)} .hero .stat .n.teal{color:var(--teal)}
+
+  /* ── section chrome ───────────────────────────────────────────── */
+  section{padding:52px 0}
+  .sec-head{margin-bottom:26px}
+  .sec-head h2{font-size:clamp(30px,5vw,42px); margin:8px 0 0}
+  .sec-head p{color:var(--mut); font-size:14.5px; max-width:62ch; margin:10px 0 0}
+
+  /* ── pillars ──────────────────────────────────────────────────── */
+  .pillars{display:grid; grid-template-columns:repeat(3,1fr); gap:14px}
+  .card{background:var(--panel); border:1px solid var(--line); border-radius:18px; padding:20px 18px; transition:border-color .25s, transform .25s, background .25s}
+  .card:hover{border-color:rgba(255,255,255,.2); transform:translateY(-2px)}
+  .card .glyph{width:42px; height:42px; border-radius:12px; display:flex; align-items:center; justify-content:center; font-size:21px; margin-bottom:13px}
+  .card h3{font-size:16px; margin:0 0 7px}
+  .card p{font-size:13.5px; color:#c2cfdd; margin:0}
+  .g-gold{background:rgba(217,165,68,.14); border:1px solid rgba(217,165,68,.34); color:var(--gold)}
+  .g-blue{background:rgba(111,200,238,.14); border:1px solid rgba(111,200,238,.34); color:var(--blue)}
+  .g-teal{background:rgba(79,203,180,.14); border:1px solid rgba(79,203,180,.34); color:var(--teal)}
+  @media (max-width:760px){ .pillars{grid-template-columns:1fr} }
+
+  /* ── classes strip ────────────────────────────────────────────── */
+  .classes{display:grid; grid-template-columns:repeat(4,1fr); gap:12px}
+  .cls{position:relative; background:var(--panel); border:1px solid var(--line); border-radius:16px; padding:14px 10px; text-align:center; overflow:hidden; transition:transform .25s, border-color .25s}
+  .cls:hover{transform:translateY(-3px)}
+  .cls .art{width:78px; height:78px; margin:0 auto 8px; border-radius:12px; overflow:hidden; position:relative;
+    background:linear-gradient(170deg,var(--c,#6fc8ee)22,rgba(0,0,0,.34)); border:1px solid var(--c,#6fc8ee)55; display:flex; align-items:center; justify-content:center}
+  .cls .art::after{content:""; position:absolute; inset:0; background:radial-gradient(60% 55% at 50% 44%,var(--c)33,transparent 72%)}
+  .cls img{width:60px; height:60px; image-rendering:pixelated; image-rendering:crisp-edges; position:relative; z-index:1; filter:drop-shadow(0 2px 8px rgba(0,0,0,.6))}
+  .cls .nm{font-family:'Bebas Neue',sans-serif; font-size:19px; letter-spacing:.04em}
+  .cls .pr{font-size:10px; letter-spacing:.1em; color:var(--dim); text-transform:uppercase; margin-top:2px}
+  @media (max-width:520px){ .classes{grid-template-columns:repeat(2,1fr)} }
+
+  /* ── stage / phones ───────────────────────────────────────────── */
+  .stage{display:flex; gap:56px; justify-content:center; align-items:flex-start; flex-wrap:wrap}
+  .phone-slot{position:relative}
+  .phone-cap{display:flex; align-items:baseline; gap:9px; margin-bottom:14px; justify-content:center}
+  .phone-cap .t{font-family:'Bebas Neue',sans-serif; font-size:19px; letter-spacing:.14em}
+  .phone-cap .s{font-size:11.5px; color:var(--dim)}
+  .phone{transform-origin:top left}
+
+  /* ── features (o que tem dentro) ──────────────────────────────── */
+  .feats{display:grid; grid-template-columns:repeat(3,1fr); gap:12px}
+  .feat{display:flex; gap:13px; align-items:flex-start; background:var(--panel); border:1px solid var(--line); border-radius:15px; padding:15px 15px; transition:border-color .25s, transform .25s}
+  .feat:hover{border-color:rgba(255,255,255,.18); transform:translateY(-2px)}
+  .feat .fi{flex:none; width:38px; height:38px; border-radius:11px; display:flex; align-items:center; justify-content:center; font-size:19px; background:rgba(255,255,255,.05); border:1px solid rgba(255,255,255,.1); color:var(--gold)}
+  .feat h4{font-size:14px; margin:0 0 3px}
+  .feat p{font-size:12.5px; color:#b3c0d1; margin:0; line-height:1.5}
+  @media (max-width:860px){ .feats{grid-template-columns:repeat(2,1fr)} }
+  @media (max-width:560px){ .feats{grid-template-columns:1fr} }
+
+  /* ── install ──────────────────────────────────────────────────── */
+  .install{display:grid; grid-template-columns:1fr 1fr; gap:14px}
+  .icard{background:var(--panel); border:1px solid var(--line); border-radius:18px; padding:20px 20px}
+  .icard .tag{font-size:10px; letter-spacing:.16em; text-transform:uppercase; margin-bottom:10px}
+  .icard p{font-size:13.5px; color:#c2cfdd; margin:0 0 16px}
+  @media (max-width:680px){ .install{grid-template-columns:1fr} }
+
+  /* ── footer ───────────────────────────────────────────────────── */
+  footer{border-top:1px solid rgba(255,255,255,.08); padding:36px 0 60px; margin-top:20px}
+  footer .cols{display:flex; flex-wrap:wrap; gap:26px 40px; justify-content:space-between}
+  footer .lic{font-size:11.5px; color:var(--dim); line-height:1.6; max-width:60ch}
+
+  /* ── reveal animation ─────────────────────────────────────────── */
+  .reveal{opacity:0; transform:translateY(26px); transition:opacity .7s cubic-bezier(.2,.8,.2,1), transform .7s cubic-bezier(.2,.8,.2,1); transition-delay:calc(var(--i,0)*70ms)}
+  .reveal.in{opacity:1; transform:none}
+  @keyframes pulse{0%,100%{opacity:.5}50%{opacity:1}}
+  @media (prefers-reduced-motion:reduce){
+    html{scroll-behavior:auto}
+    .reveal{opacity:1; transform:none; transition:none}
+    .hero .badge .dot{animation:none}
+    .btn:hover,.card:hover,.cls:hover,.feat:hover{transform:none}
+  }
 </style>
 </head>
 <body>
-<div style="min-height:100%;background:#05070c;background-image:radial-gradient(80% 50% at 15% 0%,#141a3c 0%,rgba(7,8,15,0) 60%),radial-gradient(60% 40% at 92% 96%,rgba(217,165,68,.1) 0%,rgba(7,8,15,0) 70%);font-family:Karla,system-ui,sans-serif;color:#e8eef5;padding:44px 48px 64px;box-sizing:border-box">
+<div class="bg"></div>
+<div class="grid-bg"></div>
 
-  <div style="max-width:880px">
-    <div style="display:flex;align-items:center;gap:16px;margin-bottom:26px">
-      <img src="assets/adamante-shield.webp" alt="Adamante" style="height:78px;width:auto;filter:drop-shadow(0 0 24px rgba(111,200,238,.4))">
-      <div style="font-family:'Bebas Neue',sans-serif;font-size:38px;letter-spacing:.2em;line-height:1;color:#e8eef5">ADAMANTE</div>
-      <div style="width:34px;height:1px;background:rgba(255,255,255,.18)"></div>
-      <div style="font-size:11px;letter-spacing:.16em;color:#75839a;text-transform:uppercase;line-height:1.7">Protótipo<br>interativo · v1</div>
-    </div>
+<!-- sprite de ícones -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="ic-timer" viewBox="0 0 24 24"><circle cx="12" cy="13" r="8"/><path d="M12 13V9M9 2h6"/></symbol>
+  <symbol id="ic-epic" viewBox="0 0 24 24"><path d="M5 21V4"/><path d="M5 4h12l-2.5 3.5L17 11H5"/></symbol>
+  <symbol id="ic-guild" viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.2"/><path d="M3.5 20c0-3 2.5-5 5.5-5s5.5 2 5.5 5"/><path d="M16 5.5a3.2 3.2 0 010 6"/><path d="M18.5 20c0-2-1-3.6-3-4.6"/></symbol>
+  <symbol id="ic-moon" viewBox="0 0 24 24"><path d="M20 14.5A8 8 0 119.5 4a6.2 6.2 0 0010.5 10.5z"/></symbol>
+  <symbol id="ic-flame" viewBox="0 0 24 24"><path d="M12 3c2 3.5 5 5 5 9a5 5 0 01-10 0c0-2 1-3.2 2.2-4.2 0 1.2 1 2.2 2 2.2 0-3-1.2-5 .8-7z"/></symbol>
+  <symbol id="ic-shield" viewBox="0 0 24 24"><path d="M12 3l7 3v5.5c0 4.6-3 7.6-7 9.5-4-1.9-7-4.9-7-9.5V6z"/></symbol>
+  <symbol id="ic-sword" viewBox="0 0 24 24"><path d="M14.5 4H20v5.5L9 20.5 3.5 15z"/><path d="M6 12l6 6M15 5l4 4"/></symbol>
+  <symbol id="ic-mask" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 4-6 8-6s8 2 8 6"/></symbol>
+  <symbol id="ic-lock" viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 018 0v3"/></symbol>
+  <symbol id="ic-pulse" viewBox="0 0 24 24"><path d="M3 12h4l2-6 4 12 2-6h6"/></symbol>
+  <symbol id="ic-cards" viewBox="0 0 24 24"><rect x="4" y="6" width="10" height="14" rx="2"/><path d="M9 6l6-2 5 12-4 1.5"/></symbol>
+  <symbol id="ic-star" viewBox="0 0 24 24"><path d="M12 3l2.6 5.6L20 9.4l-4 4 1 6-5-2.8L7 19.4l1-6-4-4 5.4-.8z"/></symbol>
+  <symbol id="ic-arrow" viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></symbol>
+  <symbol id="ic-phone" viewBox="0 0 24 24"><rect x="7" y="2" width="10" height="20" rx="2.5"/><path d="M11 18h2"/></symbol>
+</svg>
 
-    <div style="font-family:'Bebas Neue',sans-serif;font-size:56px;line-height:.94;letter-spacing:.01em;max-width:620px;margin-bottom:16px">RPG DE HÁBITO,<br>COM <span style="color:#d9a544">CONSEQUÊNCIA</span> REAL</div>
-    <div style="font-size:15px;line-height:1.6;color:#9fadc0;max-width:560px;text-wrap:pretty">Treze telas jogáveis. O aparelho da esquerda abre na abertura do app: login, criar conta, onboarding, escolha de classe e nome, e daí o jogo. O da direita entra direto na Guilda. Cada aparelho roda uma sessão independente.</div>
-
-    <div style="display:flex;flex-wrap:wrap;gap:14px;margin:30px 0 8px">
-      <div style="flex:1;min-width:210px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.09);border-radius:16px;padding:16px 17px">
-        <div style="font-size:10px;letter-spacing:.16em;color:#f0cd85;text-transform:uppercase;margin-bottom:8px">Postura</div>
-        <div style="font-size:13.5px;line-height:1.55;color:#c2cfdd;text-wrap:pretty">Jogo primeiro. Tipografia de pôster (Bebas Neue) nos números que importam, superfícies de vidro sobre índigo profundo, aresta de mineral como motivo. A lista de tarefas nunca é o herói da tela.</div>
-      </div>
-      <div style="flex:1;min-width:210px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.09);border-radius:16px;padding:16px 17px">
-        <div style="font-size:10px;letter-spacing:.16em;color:#6fc8ee;text-transform:uppercase;margin-bottom:8px">Cor tirada da logo</div>
-        <div style="font-size:13.5px;line-height:1.55;color:#c2cfdd;text-wrap:pretty">Ouro <span style="color:#d9a544">#d9a544</span> é esforço, dano e sequência, como os biséis do emblema. Gelo <span style="color:#6fc8ee">#6fc8ee</span> é XP, energia e arcano, como o cristal e as runas. Fadiga é violeta acinzentado, nunca vermelho — ela não é castigo.</div>
-      </div>
-      <div style="flex:1;min-width:210px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.09);border-radius:16px;padding:16px 17px">
-        <div style="font-size:10px;letter-spacing:.16em;color:#4fcbb4;text-transform:uppercase;margin-bottom:8px">Regra que virou desenho</div>
-        <div style="font-size:13.5px;line-height:1.55;color:#c2cfdd;text-wrap:pretty">Nada regride. Atributo enfraquecido por Fadiga aparece em violeta com o valor real intacto ao lado. Derrota mostra “0 perdido”. Gordura corporal aparece uma vez, sem adjetivo, e em nenhum ranking.</div>
-      </div>
-    </div>
-
-    <div style="display:flex;flex-wrap:wrap;gap:10px;margin-top:22px">
-      <div style="display:flex;align-items:center;gap:8px;padding:8px 12px;border-radius:10px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);font-size:12px;color:#9fadc0"><span style="font-family:'Bebas Neue',sans-serif;font-size:15px;color:#d9a544;letter-spacing:.05em">1</span>Onboarding com carrossel 3D de classes</div>
-      <div style="display:flex;align-items:center;gap:8px;padding:8px 12px;border-radius:10px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);font-size:12px;color:#9fadc0"><span style="font-family:'Bebas Neue',sans-serif;font-size:15px;color:#d9a544;letter-spacing:.05em">2</span>80 XP nas diárias sobem para o nível 2</div>
-      <div style="display:flex;align-items:center;gap:8px;padding:8px 12px;border-radius:10px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);font-size:12px;color:#9fadc0"><span style="font-family:'Bebas Neue',sans-serif;font-size:15px;color:#d9a544;letter-spacing:.05em">3</span>Ficha: custo progressivo acima de 15</div>
-      <div style="display:flex;align-items:center;gap:8px;padding:8px 12px;border-radius:10px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);font-size:12px;color:#9fadc0"><span style="font-family:'Bebas Neue',sans-serif;font-size:15px;color:#d9a544;letter-spacing:.05em">4</span>Combate: cartas sempre acertam, crítico em 19-20</div>
-      <div style="display:flex;align-items:center;gap:8px;padding:8px 12px;border-radius:10px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);font-size:12px;color:#9fadc0"><span style="font-family:'Bebas Neue',sans-serif;font-size:15px;color:#d9a544;letter-spacing:.05em">5</span>Deck: cartas viram no eixo Y, mostrando a origem real</div>
-    </div>
+<!-- ── nav ──────────────────────────────────────────────────────── -->
+<header class="nav">
+  <div class="wrap">
+    <img src="assets/adamante-shield.webp" alt="Adamante">
+    <span class="name">ADAMANTE</span>
+    <span class="spacer"></span>
+    <a class="navlink" href="#recursos">Recursos</a>
+    <a class="navlink" href="#telas">Telas</a>
+    <a class="navlink" href="#instalar">Instalar</a>
+    <a class="btn btn-gold" href="app.html?platform=ios&start=splash" style="min-height:38px;padding:0 14px;font-size:14px">Jogar</a>
   </div>
+</header>
 
-  <div style="display:flex;flex-wrap:wrap;gap:64px;margin-top:52px;align-items:flex-start">
-
-    <!-- ── iPhone ─────────────────────────────────────────────────────────── -->
-    <div style="display:flex;flex-direction:column;gap:16px;align-items:flex-start">
-      <div style="display:flex;align-items:baseline;gap:9px">
-        <div style="font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:.14em">IPHONE</div>
-        <div style="font-size:11.5px;color:#75839a">402 × 874 · abertura, login e onboarding</div>
-      </div>
-
-      <div style="width:402px;height:874px;border-radius:48px;overflow:hidden;position:relative;background:#000;box-shadow:0 40px 80px rgba(0,0,0,0.18), 0 0 0 1px rgba(0,0,0,0.12);font-family:-apple-system, system-ui, sans-serif;-webkit-font-smoothing:antialiased">
-        <div style="position:absolute;top:11px;left:50%;transform:translateX(-50%);width:126px;height:37px;border-radius:24px;background:#000;z-index:50"></div>
-        <div style="position:absolute;top:0;left:0;right:0;z-index:10;pointer-events:none">
-          <div style="display:flex;gap:154px;align-items:center;justify-content:center;padding:21px 24px 19px;box-sizing:border-box;position:relative;z-index:20;width:100%">
-            <div style="flex:1;height:22px;display:flex;align-items:center;justify-content:center;padding-top:1.5px">
-              <span style="font-family:-apple-system,'SF Pro',system-ui;font-weight:590;font-size:17px;line-height:22px;color:#fff">9:41</span>
-            </div>
-            <div style="flex:1;height:22px;display:flex;align-items:center;justify-content:center;gap:7px;padding-top:1px;padding-right:1px">
-              <svg width="19" height="12" viewBox="0 0 19 12"><rect x="0" y="7.5" width="3.2" height="4.5" rx="0.7" fill="#fff"/><rect x="4.8" y="5" width="3.2" height="7" rx="0.7" fill="#fff"/><rect x="9.6" y="2.5" width="3.2" height="9.5" rx="0.7" fill="#fff"/><rect x="14.4" y="0" width="3.2" height="12" rx="0.7" fill="#fff"/></svg>
-              <svg width="17" height="12" viewBox="0 0 17 12"><path d="M8.5 3.2C10.8 3.2 12.9 4.1 14.4 5.6L15.5 4.5C13.7 2.7 11.2 1.5 8.5 1.5C5.8 1.5 3.3 2.7 1.5 4.5L2.6 5.6C4.1 4.1 6.2 3.2 8.5 3.2Z" fill="#fff"/><path d="M8.5 6.8C9.9 6.8 11.1 7.3 12 8.2L13.1 7.1C11.8 5.9 10.2 5.1 8.5 5.1C6.8 5.1 5.2 5.9 3.9 7.1L5 8.2C5.9 7.3 7.1 6.8 8.5 6.8Z" fill="#fff"/><circle cx="8.5" cy="10.5" r="1.5" fill="#fff"/></svg>
-              <svg width="27" height="13" viewBox="0 0 27 13"><rect x="0.5" y="0.5" width="23" height="12" rx="3.5" stroke="#fff" stroke-opacity="0.35" fill="none"/><rect x="2" y="2" width="20" height="9" rx="2" fill="#fff"/><path d="M25 4.5V8.5C25.8 8.2 26.5 7.2 26.5 6.5C26.5 5.8 25.8 4.8 25 4.5Z" fill="#fff" fill-opacity="0.4"/></svg>
-            </div>
-          </div>
-        </div>
-        <div style="height:100%;display:flex;flex-direction:column">
-          <div style="flex:1;overflow:hidden">
-            <iframe src="app.html?platform=ios&start=splash" title="Adamante · iPhone" loading="eager"></iframe>
-          </div>
-        </div>
-        <div style="position:absolute;bottom:0;left:0;right:0;z-index:60;height:34px;display:flex;justify-content:center;align-items:flex-end;padding-bottom:8px;pointer-events:none">
-          <div style="width:139px;height:5px;border-radius:100px;background:rgba(255,255,255,0.7)"></div>
-        </div>
-      </div>
+<!-- ── hero ─────────────────────────────────────────────────────── -->
+<div class="wrap">
+  <section class="hero">
+    <div class="badge reveal"><span class="dot"></span> Protótipo jogável · roda no navegador, offline</div>
+    <h1 class="disp reveal" style="--i:1">RPG DE HÁBITO,<br>COM <span class="g">CONSEQUÊNCIA</span> REAL</h1>
+    <p class="lead reveal" style="--i:2">Treino de academia, estudo e trabalho reais viram atributos, cartas e batalhas. Você não treina para ganhar pontos abstratos — o esforço vira poder concreto, e a inatividade tem consequência visível. Sem punir com perda permanente.</p>
+    <div class="cta reveal" style="--i:3">
+      <a class="btn btn-gold" href="#telas"><svg class="ic"><use href="#ic-phone"/></svg> Ver rodando</a>
+      <a class="btn btn-ghost" href="#recursos"><svg class="ic"><use href="#ic-star"/></svg> O que tem dentro</a>
+      <a class="btn btn-blue" href="#instalar"><svg class="ic"><use href="#ic-arrow"/></svg> Instalar no aparelho</a>
     </div>
-
-    <!-- ── Android ────────────────────────────────────────────────────────── -->
-    <div style="display:flex;flex-direction:column;gap:16px;align-items:flex-start">
-      <div style="display:flex;align-items:baseline;gap:9px">
-        <div style="font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:.14em">ANDROID</div>
-        <div style="font-size:11.5px;color:#75839a">412 × 892 · abre na Guilda, já com personagem</div>
-      </div>
-
-      <div style="width:412px;height:892px;border-radius:18px;overflow:hidden;background:#1d1b20;border:8px solid rgba(116,119,117,0.5);box-shadow:0 30px 80px rgba(0,0,0,0.25);display:flex;flex-direction:column;box-sizing:border-box;font-family:Roboto, system-ui, sans-serif">
-        <div style="height:40px;display:flex;align-items:center;justify-content:space-between;padding:0 16px;position:relative;flex:none">
-          <div style="width:128px;display:flex;align-items:center;gap:8px">
-            <span style="font-size:14px;font-weight:400;letter-spacing:0.25px;line-height:20px;color:#fff">9:30</span>
-          </div>
-          <div style="position:absolute;left:50%;top:8px;transform:translateX(-50%);width:24px;height:24px;border-radius:100px;background:#2e2e2e"></div>
-          <div style="display:flex;align-items:center">
-            <div style="display:flex;padding-right:2px">
-              <svg width="16" height="16" viewBox="0 0 16 16" style="margin-right:-2px"><path d="M8 13.3L.67 5.97a10.37 10.37 0 0114.66 0L8 13.3z" fill="#fff"/></svg>
-              <svg width="16" height="16" viewBox="0 0 16 16" style="margin-right:-2px"><path d="M14.67 14.67V1.33L1.33 14.67h13.34z" fill="#fff"/></svg>
-            </div>
-            <svg width="16" height="16" viewBox="0 0 16 16"><rect x="3.75" y="2" width="8.5" height="13" rx="1.5" fill="#fff"/><rect x="5.5" y="0.9" width="5" height="2" rx="0.5" fill="#fff"/></svg>
-          </div>
-        </div>
-        <div style="flex:1;overflow:hidden;min-height:0">
-          <iframe src="app.html?platform=android&start=guilda&name=Vesper&returning=1" title="Adamante · Android" loading="eager"></iframe>
-        </div>
-        <div style="height:24px;display:flex;align-items:center;justify-content:center;flex:none">
-          <div style="width:108px;height:4px;border-radius:2px;background:#fff;opacity:0.4"></div>
-        </div>
-      </div>
+    <div class="stats reveal" style="--i:4">
+      <div class="stat"><div class="n gold">13+</div><div class="l">Telas jogáveis</div></div>
+      <div class="stat"><div class="n blue">4</div><div class="l">Classes com aparências</div></div>
+      <div class="stat"><div class="n teal">24</div><div class="l">Equipamentos</div></div>
+      <div class="stat"><div class="n">0</div><div class="l">Conta ou servidor</div></div>
     </div>
-  </div>
-
-  <!-- ── Instalar ───────────────────────────────────────────────────────────── -->
-  <div style="max-width:880px;margin-top:56px;padding-top:26px;border-top:1px solid rgba(255,255,255,.1)">
-    <div style="font-family:'Bebas Neue',sans-serif;font-size:28px;letter-spacing:.14em;line-height:1;margin-bottom:8px">INSTALAR NO APARELHO</div>
-    <div style="font-size:13.5px;line-height:1.6;color:#9fadc0;max-width:560px;margin-bottom:20px;text-wrap:pretty">O protótipo também roda fora do navegador do computador, como app instalado. São dois caminhos, um por sistema.</div>
-
-    <div style="display:flex;flex-wrap:wrap;gap:14px">
-      <div style="flex:1;min-width:260px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.09);border-radius:16px;padding:18px 19px">
-        <div style="font-size:10px;letter-spacing:.16em;color:#f0cd85;text-transform:uppercase;margin-bottom:9px">Android · APK</div>
-        <div style="font-size:13.5px;line-height:1.55;color:#c2cfdd;text-wrap:pretty;margin-bottom:16px">Instalação direta, fora da Play Store. Ao abrir o arquivo, o Android pede autorização para instalar de fontes desconhecidas: é o comportamento normal de um pacote assinado por fora da loja. Depois de instalado, o app roda 100% offline, sem conta e sem servidor.</div>
-        <a href="https://github.com/thigoaraujo/adamante/releases/latest/download/adamante.apk" style="display:inline-flex;align-items:center;min-height:48px;padding:0 20px;border-radius:12px;border-bottom:none;background:linear-gradient(135deg,#d9a544,#b8842c);color:#191202;font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:.1em">BAIXAR O APK</a>
-      </div>
-
-      <div style="flex:1;min-width:260px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.09);border-radius:16px;padding:18px 19px">
-        <div style="font-size:10px;letter-spacing:.16em;color:#6fc8ee;text-transform:uppercase;margin-bottom:9px">iPhone · PWA</div>
-        <div style="font-size:13.5px;line-height:1.55;color:#c2cfdd;text-wrap:pretty;margin-bottom:16px">No iOS a instalação passa pelo Safari: abra o app, toque em Partilhar e escolha “Adicionar à Tela de Início”. A partir daí ele abre em tela cheia, com ícone próprio, e funciona sem internet depois da primeira abertura.</div>
-        <a href="www/" style="display:inline-flex;align-items:center;min-height:48px;padding:0 20px;border-radius:12px;border:1px solid rgba(111,200,238,.4);border-bottom:1px solid rgba(111,200,238,.4);background:rgba(111,200,238,.1);color:#6fc8ee;font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:.1em">ABRIR O APP NO SAFARI</a>
-      </div>
-    </div>
-
-    <div style="margin-top:14px;font-size:11.5px;line-height:1.6;color:#68768a;text-wrap:pretty">Os dois pacotes saem do mesmo código: <code style="color:#9fadc0">node build-www.js</code> gera <code style="color:#9fadc0">www/</code>, que é ao mesmo tempo o PWA e o conteúdo do APK.</div>
-  </div>
-
-  <div style="max-width:880px;margin-top:56px;padding-top:26px;border-top:1px solid rgba(255,255,255,.1)">
-    <div style="font-size:10px;letter-spacing:.16em;color:#75839a;text-transform:uppercase;margin-bottom:12px">Próximos passos, se você quiser</div>
-    <div style="display:flex;flex-direction:column;gap:7px;font-size:13.5px;line-height:1.5;color:#9fadc0">
-      <div>Cronômetro de estudo com detecção de app em segundo plano — a tela que falta para fechar a validação de camada 2.</div>
-      <div>Fluxo de criação de missão épica, incluindo o que acontece quando o prazo vence sem punição.</div>
-      <div>Estado vazio de guilda: convite por link, primeira meta coletiva.</div>
-      <div>Arte real de classe, monstro e carta nos espaços marcados.</div>
-    </div>
-    <div style="margin-top:22px;font-size:12.5px;line-height:1.6;color:#68768a;text-wrap:pretty">
-      Abrir o app em tela cheia: <a href="app.html?platform=ios&start=splash">iPhone</a> · <a href="app.html?platform=android&start=guilda&name=Vesper&returning=1">Android</a>.
-      Parâmetros aceitos na URL: <code style="color:#9fadc0">platform</code> (ios | android), <code style="color:#9fadc0">start</code> (splash, login, cadastro, onboarding, inicio, ficha, medicao, deck, batalha, guilda, thread, ranking, perfil),
-      <code style="color:#9fadc0">name</code>, <code style="color:#9fadc0">battleMode</code> (confronto | livre) e <code style="color:#9fadc0">returning</code>.
-    </div>
-  </div>
+  </section>
 </div>
+
+<!-- ── pilares ──────────────────────────────────────────────────── -->
+<div class="wrap">
+  <section>
+    <div class="sec-head reveal">
+      <div class="eyebrow">Como o desenho pensa</div>
+      <h2 class="disp">Regras que viraram tela</h2>
+      <p>O jogo vem primeiro. Cada decisão de produto respeita quatro pilares — e alguns deles viraram detalhe visível na interface.</p>
+    </div>
+    <div class="pillars">
+      <div class="card reveal" style="--i:0">
+        <div class="glyph g-gold"><svg class="ic"><use href="#ic-shield"/></svg></div>
+        <h3>Nada regride</h3>
+        <p>A Fadiga enfraquece o personagem no presente, mas o valor real fica intacto na ficha, em violeta — nunca vermelho. Derrota mostra “0 perdido”. Perda permanente é a maior causa de abandono, então ela não existe.</p>
+      </div>
+      <div class="card reveal" style="--i:1">
+        <div class="glyph g-blue"><svg class="ic"><use href="#ic-pulse"/></svg></div>
+        <h3>Premia o que você fez</h3>
+        <p>A pontuação vem do comportamento, nunca da aparência. Gordura corporal aparece uma vez, sem adjetivo, e em nenhum ranking. Quem começa do zero sobe mais rápido, pela melhora relativa.</p>
+      </div>
+      <div class="card reveal" style="--i:2">
+        <div class="glyph g-teal"><svg class="ic"><use href="#ic-sword"/></svg></div>
+        <h3>Esforço vira poder</h3>
+        <p>Cartas de ataque sempre acertam — a Defesa reduz o dano, não anula. A aleatoriedade fica só no crítico, onde ela só surpreende para melhor. Três semanas de treino nunca são perdidas por azar.</p>
+      </div>
+    </div>
+  </section>
+</div>
+
+<!-- ── classes ──────────────────────────────────────────────────── -->
+<div class="wrap">
+  <section>
+    <div class="sec-head reveal">
+      <div class="eyebrow">Escolha quem você é</div>
+      <h2 class="disp">Quatro classes, várias caras</h2>
+      <p>Cada classe tem um atributo primário e um punhado de aparências (gênero e raça) — a primeira grátis, as outras desbloqueadas com ouro ou missão épica.</p>
+    </div>
+    <div class="classes">
+      <div class="cls reveal" style="--i:0;--c:#d9a544"><div class="art"><img src="assets/art/cls_guerreiro.png" alt="Guerreiro"></div><div class="nm">Guerreiro</div><div class="pr">Força</div></div>
+      <div class="cls reveal" style="--i:1;--c:#4fcbb4"><div class="art"><img src="assets/art/cls_ladino.png" alt="Ladino"></div><div class="nm">Ladino</div><div class="pr">Destreza</div></div>
+      <div class="cls reveal" style="--i:2;--c:#6fc8ee"><div class="art"><img src="assets/art/cls_mago.png" alt="Mago"></div><div class="nm">Mago</div><div class="pr">Inteligência</div></div>
+      <div class="cls reveal" style="--i:3;--c:#e8c46a"><div class="art"><img src="assets/art/cls_clerigo.png" alt="Clérigo"></div><div class="nm">Clérigo</div><div class="pr">Sabedoria</div></div>
+    </div>
+  </section>
+</div>
+
+<!-- ── telas ao vivo ────────────────────────────────────────────── -->
+<div class="wrap">
+  <section id="telas">
+    <div class="sec-head reveal" style="text-align:center">
+      <div class="eyebrow">Interativo de verdade</div>
+      <h2 class="disp">Rode agora, no navegador</h2>
+      <p style="margin-left:auto;margin-right:auto">Dois aparelhos, duas sessões independentes. O iPhone abre na apresentação — login, criar conta, onboarding e o jogo. O Android já entra com personagem. Toque e jogue.</p>
+    </div>
+
+    <div class="stage">
+      <!-- iPhone -->
+      <div class="phone-slot reveal" data-fw="402" data-fh="874">
+        <div class="phone-cap"><span class="t">IPHONE</span><span class="s">402 × 874 · abertura e onboarding</span></div>
+        <div class="phone" style="width:402px;height:874px;border-radius:48px;overflow:hidden;position:relative;background:#000;box-shadow:0 40px 80px rgba(0,0,0,0.45), 0 0 0 1px rgba(0,0,0,0.12);font-family:-apple-system, system-ui, sans-serif;-webkit-font-smoothing:antialiased">
+          <div style="position:absolute;top:11px;left:50%;transform:translateX(-50%);width:126px;height:37px;border-radius:24px;background:#000;z-index:50"></div>
+          <div style="position:absolute;top:0;left:0;right:0;z-index:10;pointer-events:none">
+            <div style="display:flex;gap:154px;align-items:center;justify-content:center;padding:21px 24px 19px;box-sizing:border-box;position:relative;z-index:20;width:100%">
+              <div style="flex:1;height:22px;display:flex;align-items:center;justify-content:center;padding-top:1.5px">
+                <span style="font-family:-apple-system,'SF Pro',system-ui;font-weight:590;font-size:17px;line-height:22px;color:#fff">9:41</span>
+              </div>
+              <div style="flex:1;height:22px;display:flex;align-items:center;justify-content:center;gap:7px;padding-top:1px;padding-right:1px">
+                <svg width="19" height="12" viewBox="0 0 19 12"><rect x="0" y="7.5" width="3.2" height="4.5" rx="0.7" fill="#fff"/><rect x="4.8" y="5" width="3.2" height="7" rx="0.7" fill="#fff"/><rect x="9.6" y="2.5" width="3.2" height="9.5" rx="0.7" fill="#fff"/><rect x="14.4" y="0" width="3.2" height="12" rx="0.7" fill="#fff"/></svg>
+                <svg width="17" height="12" viewBox="0 0 17 12"><path d="M8.5 3.2C10.8 3.2 12.9 4.1 14.4 5.6L15.5 4.5C13.7 2.7 11.2 1.5 8.5 1.5C5.8 1.5 3.3 2.7 1.5 4.5L2.6 5.6C4.1 4.1 6.2 3.2 8.5 3.2Z" fill="#fff"/><path d="M8.5 6.8C9.9 6.8 11.1 7.3 12 8.2L13.1 7.1C11.8 5.9 10.2 5.1 8.5 5.1C6.8 5.1 5.2 5.9 3.9 7.1L5 8.2C5.9 7.3 7.1 6.8 8.5 6.8Z" fill="#fff"/><circle cx="8.5" cy="10.5" r="1.5" fill="#fff"/></svg>
+                <svg width="27" height="13" viewBox="0 0 27 13"><rect x="0.5" y="0.5" width="23" height="12" rx="3.5" stroke="#fff" stroke-opacity="0.35" fill="none"/><rect x="2" y="2" width="20" height="9" rx="2" fill="#fff"/><path d="M25 4.5V8.5C25.8 8.2 26.5 7.2 26.5 6.5C26.5 5.8 25.8 4.8 25 4.5Z" fill="#fff" fill-opacity="0.4"/></svg>
+              </div>
+            </div>
+          </div>
+          <div style="height:100%;display:flex;flex-direction:column">
+            <div style="flex:1;overflow:hidden">
+              <iframe src="app.html?platform=ios&start=splash" title="Adamante · iPhone" loading="lazy"></iframe>
+            </div>
+          </div>
+          <div style="position:absolute;bottom:0;left:0;right:0;z-index:60;height:34px;display:flex;justify-content:center;align-items:flex-end;padding-bottom:8px;pointer-events:none">
+            <div style="width:139px;height:5px;border-radius:100px;background:rgba(255,255,255,0.7)"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Android -->
+      <div class="phone-slot reveal" style="--i:1" data-fw="412" data-fh="892">
+        <div class="phone-cap"><span class="t">ANDROID</span><span class="s">412 × 892 · já com personagem</span></div>
+        <div class="phone" style="width:412px;height:892px;border-radius:18px;overflow:hidden;background:#1d1b20;border:8px solid rgba(116,119,117,0.5);box-shadow:0 30px 80px rgba(0,0,0,0.45);display:flex;flex-direction:column;box-sizing:border-box;font-family:Roboto, system-ui, sans-serif">
+          <div style="height:40px;display:flex;align-items:center;justify-content:space-between;padding:0 16px;position:relative;flex:none">
+            <div style="width:128px;display:flex;align-items:center;gap:8px">
+              <span style="font-size:14px;font-weight:400;letter-spacing:0.25px;line-height:20px;color:#fff">9:30</span>
+            </div>
+            <div style="position:absolute;left:50%;top:8px;transform:translateX(-50%);width:24px;height:24px;border-radius:100px;background:#2e2e2e"></div>
+            <div style="display:flex;align-items:center">
+              <div style="display:flex;padding-right:2px">
+                <svg width="16" height="16" viewBox="0 0 16 16" style="margin-right:-2px"><path d="M8 13.3L.67 5.97a10.37 10.37 0 0114.66 0L8 13.3z" fill="#fff"/></svg>
+                <svg width="16" height="16" viewBox="0 0 16 16" style="margin-right:-2px"><path d="M14.67 14.67V1.33L1.33 14.67h13.34z" fill="#fff"/></svg>
+              </div>
+              <svg width="16" height="16" viewBox="0 0 16 16"><rect x="3.75" y="2" width="8.5" height="13" rx="1.5" fill="#fff"/><rect x="5.5" y="0.9" width="5" height="2" rx="0.5" fill="#fff"/></svg>
+            </div>
+          </div>
+          <div style="flex:1;overflow:hidden;min-height:0">
+            <iframe src="app.html?platform=android&start=inicio&name=Vesper" title="Adamante · Android" loading="lazy"></iframe>
+          </div>
+          <div style="height:24px;display:flex;align-items:center;justify-content:center;flex:none">
+            <div style="width:108px;height:4px;border-radius:2px;background:#fff;opacity:0.4"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>
+
+<!-- ── recursos ─────────────────────────────────────────────────── -->
+<div class="wrap">
+  <section id="recursos">
+    <div class="sec-head reveal">
+      <div class="eyebrow">O que tem dentro</div>
+      <h2 class="disp">O laço completo, jogável</h2>
+      <p>Muito além de uma lista de tarefas: um jogo com progressão, economia, social e combate — tudo funcionando no protótipo.</p>
+    </div>
+    <div class="feats">
+      <div class="feat reveal" style="--i:0"><div class="fi"><svg class="ic"><use href="#ic-timer"/></svg></div><div><h4>Cronômetro de estudo</h4><p>Pomodoro com detecção de app em segundo plano: sair durante o foco invalida o bloco. É o antifraude de camada 2.</p></div></div>
+      <div class="feat reveal" style="--i:1"><div class="fi"><svg class="ic"><use href="#ic-epic"/></svg></div><div><h4>Missões épicas</h4><p>Metas de 15 a 90 dias com barra de progresso e recompensa alta. Se o prazo vence, nada é perdido — só recomeça.</p></div></div>
+      <div class="feat reveal" style="--i:2"><div class="fi"><svg class="ic"><use href="#ic-guild"/></svg></div><div><h4>Guildas</h4><p>Convite por link, primeira meta coletiva e validação social — a maioria confirma, o constrangimento vale como antifraude.</p></div></div>
+      <div class="feat reveal" style="--i:3"><div class="fi"><svg class="ic"><use href="#ic-moon"/></svg></div><div><h4>Descanso Sagrado</h4><p>Até 4 folgas planejadas por mês, com 12 h de antecedência. Nesses dias não há Fadiga e a sequência é preservada.</p></div></div>
+      <div class="feat reveal" style="--i:4"><div class="fi"><svg class="ic"><use href="#ic-cards"/></svg></div><div><h4>Cartas &amp; combate</h4><p>Deck fabricado por ação real, batalha em dois modos e reforja: 5 cartas repetidas viram uma de raridade superior.</p></div></div>
+      <div class="feat reveal" style="--i:5"><div class="fi"><svg class="ic"><use href="#ic-sword"/></svg></div><div><h4>Equipamento e armas</h4><p>24 peças por slot, com ícone e bônus reais: armas somam dano, armaduras somam Defesa, joias melhoram o crítico.</p></div></div>
+      <div class="feat reveal" style="--i:6"><div class="fi"><svg class="ic"><use href="#ic-mask"/></svg></div><div><h4>Aparências com desbloqueio</h4><p>Vários personagens por classe (guerreira, goblin, feiticeira…). A raça é permanente — trocar exige recomeçar.</p></div></div>
+      <div class="feat reveal" style="--i:7"><div class="fi"><svg class="ic"><use href="#ic-lock"/></svg></div><div><h4>Privacidade · LGPD</h4><p>Exportar todos os seus dados num arquivo, e excluir a conta apagando tudo do aparelho. Seus direitos, de verdade.</p></div></div>
+      <div class="feat reveal" style="--i:8"><div class="fi"><svg class="ic"><use href="#ic-pulse"/></svg></div><div><h4>Fontes de saúde</h4><p>Conexão com Health Connect / Apple Saúde: passos, treinos, frequência e sono validando missões automaticamente.</p></div></div>
+    </div>
+  </section>
+</div>
+
+<!-- ── instalar ─────────────────────────────────────────────────── -->
+<div class="wrap">
+  <section id="instalar">
+    <div class="sec-head reveal">
+      <div class="eyebrow">Leve para o bolso</div>
+      <h2 class="disp">Instalar no aparelho</h2>
+      <p>O protótipo roda como app instalado, 100% offline, sem conta e sem servidor. Os dois pacotes saem do mesmo código.</p>
+    </div>
+    <div class="install">
+      <div class="icard reveal" style="--i:0">
+        <div class="tag" style="color:var(--gold)">Android · APK</div>
+        <p>Instalação direta, fora da Play Store. Ao abrir o arquivo, o Android pede autorização para instalar de fontes desconhecidas — comportamento normal de um pacote assinado por fora da loja.</p>
+        <a class="btn btn-gold" href="https://github.com/thigoaraujo/adamante/releases/latest/download/adamante.apk"><svg class="ic"><use href="#ic-arrow"/></svg> Baixar o APK</a>
+      </div>
+      <div class="icard reveal" style="--i:1">
+        <div class="tag" style="color:var(--blue)">iPhone · PWA</div>
+        <p>No iOS a instalação passa pelo Safari: abra o app, toque em Partilhar e escolha “Adicionar à Tela de Início”. A partir daí ele abre em tela cheia, com ícone próprio, e funciona sem internet.</p>
+        <a class="btn btn-blue" href="www/"><svg class="ic"><use href="#ic-phone"/></svg> Abrir no Safari</a>
+      </div>
+    </div>
+    <p style="margin-top:14px;font-size:12px;color:var(--dim)">Os dois pacotes saem do mesmo código: <code>node build-www.js</code> gera <code>www/</code>, que é ao mesmo tempo o PWA e o conteúdo do APK.</p>
+  </section>
+</div>
+
+<!-- ── footer ───────────────────────────────────────────────────── -->
+<footer>
+  <div class="wrap">
+    <div class="cols">
+      <div style="max-width:360px">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
+          <img src="assets/adamante-shield.webp" alt="" style="height:28px">
+          <span class="disp" style="font-size:22px;letter-spacing:.16em">ADAMANTE</span>
+        </div>
+        <div style="font-size:12.5px;color:var(--mut)">Abrir em tela cheia:
+          <a href="app.html?platform=ios&start=splash">iPhone</a> ·
+          <a href="app.html?platform=android&start=inicio&name=Vesper">Android</a> ·
+          <a href="app.html?platform=android&start=guilda&guild=empty&name=Vesper">Guilda vazia</a>
+        </div>
+      </div>
+      <div class="lic">
+        Este trabalho inclui material do System Reference Document 5.2 (“SRD 5.2”) da Wizards of the Coast LLC, sob licença Creative Commons Attribution 4.0. A arte de personagens, monstros e itens usa tiles do Dungeon Crawl Stone Soup, em sua maioria sob CC0 (domínio público). Nenhum material de terceiros protegido, como o próprio documento de design exige.
+      </div>
+    </div>
+  </div>
+</footer>
+
+<script>
+(function () {
+  'use strict';
+  var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  // ── reveal no scroll ────────────────────────────────────────────
+  var reveals = [].slice.call(document.querySelectorAll('.reveal'));
+  if (reduce || !('IntersectionObserver' in window)) {
+    reveals.forEach(function (el) { el.classList.add('in'); });
+  } else {
+    var io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (e) {
+        if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); }
+      });
+    }, { rootMargin: '0px 0px -8% 0px', threshold: 0.12 });
+    reveals.forEach(function (el) { io.observe(el); });
+  }
+
+  // ── telefones escaláveis (responsivo) ───────────────────────────
+  function fitPhones() {
+    var slots = document.querySelectorAll('.phone-slot');
+    for (var i = 0; i < slots.length; i++) {
+      var slot = slots[i], phone = slot.querySelector('.phone');
+      var fw = +slot.getAttribute('data-fw'), fh = +slot.getAttribute('data-fh');
+      var avail = Math.min(fw, document.documentElement.clientWidth - 36);
+      var s = Math.min(1, avail / fw);
+      phone.style.transform = 'scale(' + s + ')';
+      slot.style.width = (fw * s) + 'px';
+      slot.style.height = (fh * s + 30) + 'px'; // + legenda
+    }
+  }
+  fitPhones();
+  var t; window.addEventListener('resize', function () { clearTimeout(t); t = setTimeout(fitPhones, 120); });
+  window.addEventListener('load', fitPhones);
+})();
+</script>
 </body>
 </html>
