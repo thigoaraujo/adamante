@@ -59,6 +59,7 @@
       var off = i - st.clsIdx, sel = off === 0;
       return {
         nome: k.nome, prim: k.prim, passiva: k.passiva, deck: k.deck,
+        art: 'assets/art/cls_' + k.id + '.png',
         pick: function () { app.setState({ clsIdx: i }); },
         sheen: sel ? sheen : { display: 'none' },
         primStyle: Object.assign(pill(k.cor), { display: 'inline-block', marginTop: 6 }),
@@ -250,6 +251,7 @@
       var num = c.dano ? c.dano : c.cura ? c.cura : c.def ? '+' + c.def : '—';
       return {
         nome: c.nome, custo: c.custo, rarLabel: RARL[c.rar], src: c.src, txt: c.txt, esc: c.esc,
+        art: 'assets/art/card_' + c.id + '.png',
         copies: Math.min(2, c.copies), num: num,
         numLabel: c.dano ? 'de dano' : c.cura ? 'de cura' : c.def ? 'de Defesa' : c.tipo,
         flip: function () { app.flip(c.id); },
@@ -651,6 +653,7 @@
       isRanking: st.screen === 'ranking', isPerfil: st.screen === 'perfil',
       charName: (st.charName.trim() || 'SEM NOME').toUpperCase(),
       clsName: cls.nome, clsPrim: cls.prim, charLevel: st.level,
+      clsArt: 'assets/art/cls_' + cls.id + '.png', monArt: 'assets/art/mon_sentinela.png',
       isSplash: st.screen === 'splash', isLogin: st.screen === 'login',
       coverOn: !!st.cover,
 
@@ -837,8 +840,8 @@
       clsGlow: cls.cor + '2e',
       heroHazeStyle: st.fatigue > 0 ? { position: 'absolute', inset: 0, background: 'radial-gradient(58% 48% at 42% 46%,rgba(127,142,192,.34),transparent 72%)', animation: 'admBreathe 3.6s ease-in-out infinite', pointerEvents: 'none' } : { display: 'none' },
       heroArtStyle: {
-        position: 'relative', flex: 'none', width: 116, height: 158, borderRadius: 13,
-        border: '1px dashed ' + (st.fatigue > 0 ? 'rgba(127,142,192,.5)' : 'rgba(255,255,255,.22)'),
+        position: 'relative', flex: 'none', width: 116, height: 158, borderRadius: 13, overflow: 'hidden',
+        border: '1px solid ' + (st.fatigue > 0 ? 'rgba(127,142,192,.5)' : cls.cor + '66'),
         background: 'linear-gradient(170deg,' + cls.cor + '1f,rgba(0,0,0,.34))',
         display: 'flex', alignItems: 'center', justifyContent: 'center',
         animation: 'admDrift 6s ease-in-out infinite', filter: st.fatigue > 0 ? 'saturate(.45)' : 'none',
@@ -968,6 +971,7 @@
       })(),
       previewOn: pv !== null,
       pvName: pvc ? pvc.nome : '', pvCost: pvc ? pvc.custo : '', pvRar: pvc ? RARL[pvc.rar] : '',
+      pvArt: pvc ? 'assets/art/card_' + pvc.id + '.png' : '',
       pvTxt: pvc ? pvc.txt : '', pvSrc: pvc ? pvc.src : '',
       pvNum: pvNum, pvNumLabel: pvNumLabel, pvCalcTitle: pvCalcTitle, pvLines: pvLines,
       pvCardStyle: pvc ? {
@@ -998,7 +1002,7 @@
       enemyGroupStyle: { position: 'absolute', left: '50%', bottom: '25%', width: 172, marginLeft: -86, transformStyle: 'preserve-3d', transform: 'translateZ(-70px)' },
       enemyArtStyle: {
         position: 'relative', width: 172, height: 214, borderRadius: 13,
-        border: '1px dashed rgba(255,255,255,.26)',
+        border: '1px solid rgba(217,165,68,.34)',
         background: 'linear-gradient(170deg,rgba(217,165,68,.2),rgba(4,6,16,.95))',
         display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden',
         boxShadow: '0 34px 64px rgba(0,0,0,.8), 0 0 60px rgba(217,165,68,.24), inset 0 1px 0 rgba(255,255,255,.14)',

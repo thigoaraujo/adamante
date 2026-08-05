@@ -285,8 +285,8 @@
           ${v.obClasses.map(function (k) {
             return `<div${on(k.pick)} style="${s(k.style)}">
               <div style="position:absolute;inset:0;border-radius:16px;overflow:hidden;pointer-events:none"><div style="${s(k.sheen)}"></div></div>
-              <div style="position:relative;height:96px;border-radius:11px;border:1px dashed rgba(255,255,255,.2);background:rgba(255,255,255,.03);display:flex;align-items:center;justify-content:center;margin-bottom:11px">
-                <div style="font-size:9px;letter-spacing:.14em;color:#68768a;text-transform:uppercase;text-align:center;line-height:1.5">espaço<br>para arte</div>
+              <div style="position:relative;height:96px;border-radius:11px;border:1px solid rgba(255,255,255,.12);background:rgba(0,0,0,.22);overflow:hidden;margin-bottom:11px">
+                <img class="adm-art" src="${esc(k.art)}" alt="">
               </div>
               <div style="font-family:'Bebas Neue',sans-serif;font-size:27px;line-height:1;letter-spacing:.04em">${esc(k.nome)}</div>
               <div style="${s(k.primStyle)}">${esc(k.prim)}</div>
@@ -377,7 +377,7 @@
     <div style="position:relative;display:flex;align-items:flex-end;gap:12px;padding:11px 16px 0">
       <div style="position:absolute;left:8px;top:-14px;font-family:'Bebas Neue',sans-serif;font-size:104px;line-height:.8;letter-spacing:-.02em;color:rgba(255,255,255,.055);pointer-events:none">${esc(v.charLevel)}</div>
       <div style="${s(v.heroArtStyle)}">
-        <div style="font-size:8px;letter-spacing:.14em;color:#68768a;text-transform:uppercase;text-align:center;line-height:1.7">espaço<br>arte</div>
+        <img class="adm-art" src="${esc(v.clsArt)}" alt="">
       </div>
       <div style="position:relative;flex:1;min-width:0;padding-bottom:2px">
         <div style="font-family:'Bebas Neue',sans-serif;font-size:30px;line-height:.92;letter-spacing:.04em;color:#fff">${esc(v.charName)}</div>
@@ -717,7 +717,7 @@
               <div style="flex:1"></div>
               <div style="${s(c.rarStyle)}">${esc(c.rarLabel)}</div>
             </div>
-            <div style="position:relative;flex:1;border-radius:9px;border:1px dashed rgba(255,255,255,.16);background:rgba(255,255,255,.03);margin:8px 0;display:flex;align-items:center;justify-content:center"><div style="font-size:8px;letter-spacing:.14em;color:#5a6878;text-transform:uppercase;text-align:center;line-height:1.6">espaço<br>arte</div></div>
+            <div style="position:relative;flex:1;border-radius:9px;border:1px solid ${'rgba(255,255,255,.1)'};background:rgba(0,0,0,.22);margin:8px 0;overflow:hidden"><img class="adm-art" src="${esc(c.art)}" alt=""></div>
             <div style="position:relative;font-family:'Bebas Neue',sans-serif;font-size:17px;line-height:1.05;letter-spacing:.03em">${esc(c.nome)}</div>
             <div style="position:relative;display:flex;align-items:baseline;gap:5px;margin-top:3px">
               <span style="${s(c.numStyle)}">${esc(c.num)}</span>
@@ -752,7 +752,7 @@
     <div style="position:absolute;inset:0;background:radial-gradient(70% 90% at 90% 10%,rgba(217,165,68,.2),transparent 70%);pointer-events:none"></div>
     <div style="position:relative;font-size:10.5px;letter-spacing:.14em;color:#f0cd85;text-transform:uppercase;margin-bottom:8px">Capítulo I · encontro 1 de 10</div>
     <div style="position:relative;display:flex;gap:13px;align-items:center">
-      <div style="width:88px;height:104px;border-radius:11px;border:1px dashed rgba(255,255,255,.2);background:rgba(0,0,0,.25);display:flex;align-items:center;justify-content:center;flex:none;animation:admDrift 5s ease-in-out infinite"><div style="font-size:8.5px;letter-spacing:.14em;color:#68768a;text-transform:uppercase;text-align:center;line-height:1.6">espaço<br>arte</div></div>
+      <div style="width:88px;height:104px;border-radius:11px;border:1px solid rgba(217,165,68,.34);background:rgba(0,0,0,.25);overflow:hidden;flex:none;animation:admDrift 5s ease-in-out infinite"><img class="adm-art" src="${esc(v.monArt)}" alt=""></div>
       <div style="flex:1;min-width:0">
         <div style="font-family:'Bebas Neue',sans-serif;font-size:25px;line-height:1;letter-spacing:.03em">SENTINELA DE ESCÓRIA</div>
         <div style="font-size:11.5px;color:#9fadc0;margin-top:5px;line-height:1.45;text-wrap:pretty">Nível 3 · 48 PV · comportamento determinístico. O padrão dele é aprendível.</div>
@@ -801,7 +801,8 @@
         <div style="position:absolute;left:50%;bottom:-16px;width:150px;height:52px;margin-left:-75px;border-radius:50%;background:radial-gradient(closest-side,rgba(0,0,0,.8),transparent);transform:rotateX(74deg);pointer-events:none"></div>
         <div style="${s(v.enemyArtStyle)}">
           <div style="position:absolute;inset:0;background:linear-gradient(160deg,rgba(217,165,68,.22),transparent 62%);pointer-events:none"></div>
-          <div style="font-size:8.5px;letter-spacing:.15em;color:#8a97ab;text-transform:uppercase;text-align:center;line-height:1.8;position:relative">espaço<br>para arte<br>do monstro</div>
+          <img class="adm-art" src="${esc(v.monArt)}" alt="" style="position:relative">
+
           ${v.impactOn ? `<div style="position:absolute;inset:-20%;overflow:hidden;pointer-events:none">
             <div style="position:absolute;left:0;top:0;width:100%;height:44%;background:linear-gradient(90deg,transparent,rgba(255,255,255,.95),transparent);filter:blur(2px);animation:admSlash .5s cubic-bezier(.3,.7,.2,1) forwards"></div>
           </div>` : ''}
@@ -1230,6 +1231,8 @@
       <div style="font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:.1em">ADAMANTE 1.0</div>
     </div>
     <div style="font-size:12px;line-height:1.6;color:#c2cfdd;text-wrap:pretty">This work includes material from the System Reference Document 5.2 (“SRD 5.2”) by Wizards of the Coast LLC, available at https://www.dndbeyond.com/srd. The SRD 5.2 is licensed under the Creative Commons Attribution 4.0 International License, available at https://creativecommons.org/licenses/by/4.0/legalcode.</div>
+    <div style="height:1px;background:rgba(255,255,255,.09);margin:12px 0"></div>
+    <div style="font-size:12px;line-height:1.6;color:#c2cfdd;text-wrap:pretty">Arte de personagens, monstros e itens: tiles do <span style="color:#a5e2f7">Dungeon Crawl Stone Soup</span>, em sua maioria sob licença Creative Commons Zero (CC0, domínio público), disponíveis em https://github.com/crawl/tiles.</div>
   </div>
   <div style="height:24px"></div>
 </div>`;
@@ -1309,8 +1312,8 @@ ${v.previewOn ? `
           <div style="flex:1"></div>
           <div style="${s(v.pvRarStyle)}">${esc(v.pvRar)}</div>
         </div>
-        <div style="position:relative;flex:1;border-radius:11px;border:1px dashed rgba(255,255,255,.2);background:rgba(0,0,0,.3);margin:11px 0;display:flex;align-items:center;justify-content:center">
-          <div style="font-size:9px;letter-spacing:.16em;color:#68768a;text-transform:uppercase;text-align:center;line-height:1.8">espaço<br>para arte<br>da carta</div>
+        <div style="position:relative;flex:1;border-radius:11px;border:1px solid rgba(255,255,255,.12);background:rgba(0,0,0,.3);margin:11px 0;overflow:hidden">
+          <img class="adm-art" src="${esc(v.pvArt)}" alt="">
         </div>
         <div style="position:relative;font-family:'Bebas Neue',sans-serif;font-size:27px;line-height:1;letter-spacing:.03em">${esc(v.pvName)}</div>
         <div style="position:relative;display:flex;align-items:baseline;gap:6px;margin-top:5px">

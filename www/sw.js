@@ -1,8 +1,21 @@
 // GERADO por build-www.js — nao editar a mao.
-const CACHE = 'adamante-1036d0197613';
+const CACHE = 'adamante-d1ce2e752d4d';
 const ARQUIVOS = [
   "./",
   "assets/adamante-shield.webp",
+  "assets/art/card_c1.png",
+  "assets/art/card_c2.png",
+  "assets/art/card_c3.png",
+  "assets/art/card_c4.png",
+  "assets/art/card_c5.png",
+  "assets/art/card_c6.png",
+  "assets/art/card_c7.png",
+  "assets/art/card_c8.png",
+  "assets/art/cls_clerigo.png",
+  "assets/art/cls_guerreiro.png",
+  "assets/art/cls_ladino.png",
+  "assets/art/cls_mago.png",
+  "assets/art/mon_sentinela.png",
   "css/adamante.css",
   "fonts/bebasneue-JTUSjIg69CK48gW7PXoo9Wdhyzbi.woff2",
   "fonts/bebasneue-JTUSjIg69CK48gW7PXoo9Wlhyw.woff2",

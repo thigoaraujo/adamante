@@ -165,10 +165,10 @@ declaração entra com `!important` numa folha própria.
 - **Reforja de cartas** (§17) — na tela Deck, 5 cópias repetidas da mesma carta viram 1 de
   raridade superior, gastando ouro. O custo sobe com a raridade; a barra mostra o progresso
   até as 5 cópias, e cartas épicas não têm nível acima.
-
-## O que ainda falta, conforme o próprio documento de design
-
-- Arte real de classe, monstro e carta nos espaços marcados.
+- **Arte de classe, monstro e carta** — os espaços antes tracejados agora têm arte real, com
+  tiles de pixel art do Dungeon Crawl Stone Soup (CC0). Ficam em `assets/art/`, referenciados
+  por `id` (`cls_<classe>`, `card_<id>`, `mon_sentinela`) e renderizados com `image-rendering`
+  pixelado (classe `.adm-art`).
 
 ## Licença de conteúdo
 
@@ -177,4 +177,8 @@ the Coast LLC, available at https://www.dndbeyond.com/srd. The SRD 5.2 is licens
 Creative Commons Attribution 4.0 International License, available at
 https://creativecommons.org/licenses/by/4.0/legalcode.
 
-A atribuição também aparece na tela Perfil do app, em fonte legível, como o GDD exige.
+A arte de personagens, monstros e itens usa tiles do **Dungeon Crawl Stone Soup**, em sua
+maioria sob **Creative Commons Zero (CC0, domínio público)** — veja https://github.com/crawl/tiles.
+Nenhum material de terceiros protegido e nenhuma arte de D&D entram no app, como o GDD exige.
+
+As duas atribuições também aparecem na tela Perfil do app, em fonte legível, como o GDD exige.

@@ -51,6 +51,11 @@ for (const f of fs.readdirSync(path.join(RAIZ, 'fonts'))) {
   arquivos.push(copiar(path.join('fonts', f).replace(/\\/g, '/')));
 }
 
+// arte: os tiles de pixel art (DCSS, CC0) em assets/art/
+for (const f of fs.readdirSync(path.join(RAIZ, 'assets', 'art'))) {
+  arquivos.push(copiar(path.join('assets', 'art', f).replace(/\\/g, '/')));
+}
+
 // ── index.html: o app.html com manifesto e service worker ────────────────────
 let html = fs.readFileSync(path.join(RAIZ, 'app.html'), 'utf8');
 html = html.replace(
