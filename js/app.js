@@ -41,6 +41,18 @@
     }
     app._onRender = draw;
 
+    // ── §19 download da exportação de dados (LGPD) ───────────────────────────
+    app._download = function (name, content) {
+      try {
+        var blob = new Blob([content], { type: 'application/json' });
+        var url = URL.createObjectURL(blob);
+        var a = document.createElement('a');
+        a.href = url; a.download = name;
+        document.body.appendChild(a); a.click(); a.remove();
+        setTimeout(function () { URL.revokeObjectURL(url); }, 1000);
+      } catch (e) { /* ambiente sem download */ }
+    };
+
     // ── íris: mesma coreografia do documento de design ──────────────────────
     app._irisPlay = function (kind) {
       var CL = 'polygon(50% 50%, 50% 50%, 50% 50%, 50% 50%)';

@@ -1,5 +1,5 @@
 // GERADO por build-www.js — nao editar a mao.
-const CACHE = 'adamante-d49d67e0d2d2';
+const CACHE = 'adamante-03074673f676';
 const ARQUIVOS = [
   "./",
   "assets/adamante-shield.webp",

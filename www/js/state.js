@@ -65,6 +65,8 @@
       epicDone: false, restartAsk: false,
       // §17 equipamento comprado e equipado (índices em GEAR)
       gearOwned: [], gearEquipped: [],
+      // §19 LGPD (excluir conta) e §18.1 fonte de validação automática
+      deleteAsk: false, healthConnected: false,
     };
     this._t = [];
     this._timerInt = null;
@@ -755,6 +757,53 @@
         if (d && d.epicDone) this.state.epicDone = true;
       }
     } catch (e) { /* corrompido ou indisponível */ }
+  };
+
+  // ── §19 LGPD: exportar e excluir todos os dados ───────────────────────────
+  P.exportData = function () {
+    var s = this.state, dump = {
+      exportadoEm: new Date().toISOString(),
+      personagem: { nome: s.charName, classe: this.cls().nome, nivel: s.level, xp: s.xp, ouro: s.gold, pontos: s.points, sequencia: s.streak, fadiga: s.fatigue },
+      atributos: {},
+      missoesDoDia: s.missions.map(function (m) { return { titulo: m.title, categoria: m.cat, concluida: m.done, validacao: m.src }; }),
+      equipamento: s.gearEquipped.map(function (i) { return GEAR[i].nome; }),
+      aparencias: s.portraits, aparenciasDesbloqueadas: s.unlockedLooks,
+      fonteDeSaude: s.healthConnected ? 'conectada' : 'não conectada',
+      privacidade: s.privacy,
+    };
+    ATTRS.forEach(function (a) { dump.atributos[a.key] = a.base + (s.alloc[a.key] || 0); });
+    if (this._download) this._download('adamante-meus-dados.json', JSON.stringify(dump, null, 2));
+    this.toast('Dados exportados', 'Um arquivo com tudo o que é seu foi baixado. No app real, a exportação sai em até 15 dias.', '#6fc8ee');
+  };
+  P.askDelete = function () { this.setState({ deleteAsk: true }); };
+  P.cancelDelete = function () { this.setState({ deleteAsk: false }); };
+  P.deleteAccount = function () {
+    try {
+      var kill = [];
+      for (var i = 0; i < localStorage.length; i++) { var k = localStorage.key(i); if (k && k.indexOf('adamante.') === 0) kill.push(k); }
+      kill.forEach(function (k) { localStorage.removeItem(k); });
+    } catch (e) { /* indisponível */ }
+    this.stopTimerClock();
+    var alloc = {}; ATTRS.forEach(function (a) { alloc[a.key] = 0; });
+    this.setState({
+      deleteAsk: false, screen: 'login', cover: null, wipe: null,
+      level: 1, xp: 0, points: 0, gold: 0, streak: 0, fatigue: 0, alloc: alloc, draft: {},
+      missions: this.state.missions.map(function (m) { return Object.assign({}, m, { done: false }); }),
+      weekly: 0, medDone: false, epic: null, restDays: [], dupes: { c1: 6, c3: 5, c5: 5 },
+      charName: '', email: '', senha: '', battle: null, timer: null, levelUp: false,
+      portraits: { guerreiro: 0, ladino: 0, mago: 0, clerigo: 0 },
+      unlockedLooks: { guerreiro: [0], ladino: [0], mago: [0], clerigo: [0] }, epicDone: false,
+      gearOwned: [], gearEquipped: [], proofPhoto: {}, healthConnected: false,
+    });
+    this.toast('Conta excluída', 'Todos os seus dados foram apagados deste aparelho.', '#7f8ec0');
+  };
+
+  // ── §18.1 fonte de validação automática (Health Connect / HealthKit) ──────
+  P.connectHealth = function () {
+    var connected = !this.state.healthConnected;
+    this.setState({ healthConnected: connected });
+    if (connected) this.toast('Fonte conectada', 'Passos, treinos, frequência cardíaca e sono passam a validar missões automaticamente.', '#4fcbb4');
+    else this.toast('Fonte desconectada', 'As missões de corpo voltam a depender de foto ou autodeclaração.', '#7f8ec0');
   };
 
   P.go = function (s) { this.setState({ screen: s, obStep: this.state.obStep }); };

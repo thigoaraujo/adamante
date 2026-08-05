@@ -170,6 +170,12 @@ declaração entra com `!important` numa folha própria.
   por `id` (`cls_<classe>`, `card_<id>`, `mon_sentinela`) e renderizados com `image-rendering`
   pixelado (classe `.adm-art`). As cartas também têm ícone na mão de batalha e nos dois lados
   do duelo do Confronto.
+- **Dados e privacidade · LGPD** (§19) — na aba Perfil, "Exportar todos os meus dados" baixa
+  um JSON de verdade com o que é seu (personagem, atributos, missões, equipamento, aparências),
+  e "Excluir conta" apaga tudo do aparelho (limpa o `localStorage`) atrás de uma confirmação.
+- **Fonte de validação automática** (§18.1) — cartão de Health Connect (Android) / Apple Saúde
+  (iOS) no Perfil, com conectar/desconectar. Conectado, é a camada de confiança mais alta:
+  passos, treinos, frequência e sono validando missões sem foto.
 - **Equipamento** (§8.2/§17) — na Ficha, três peças (bracelete, elmo, talismã) compradas com
   ouro. O bônus entra de verdade: soma na Defesa (que reduz o dano no combate, via
   `core.defesa`) e o talismã amplia a chance de crítico (limiar do d20 −1). Equipar/desequipar

@@ -1250,6 +1250,37 @@
       }),
       rankRows: rankRows, privacyRows: privacyRows,
 
+      // §19 LGPD
+      exportData: function () { app.exportData(); },
+      askDelete: function () { app.askDelete(); },
+      deleteAsk: st.deleteAsk,
+      cancelDelete: function () { app.cancelDelete(); },
+      doDelete: function () { app.deleteAccount(); },
+      // §18.1 fonte de validação automática
+      healthConnected: st.healthConnected,
+      healthName: ios ? 'Apple Saúde · HealthKit' : 'Health Connect',
+      healthDesc: 'Valida passos, treinos, frequência cardíaca e sono automaticamente — a camada de confiança mais alta.',
+      healthStatus: st.healthConnected ? 'Conectado · validação automática ligada' : 'Não conectado · missões de corpo dependem de foto ou autodeclaração',
+      connectHealth: function () { app.connectHealth(); },
+      healthBtnLabel: st.healthConnected ? 'DESCONECTAR' : 'CONECTAR',
+      healthCardStyle: {
+        display: 'flex', alignItems: 'center', gap: 12, padding: '13px 14px', borderRadius: 16, marginBottom: 16,
+        background: st.healthConnected ? 'rgba(79,203,180,.08)' : 'rgba(255,255,255,.04)',
+        border: '1px solid ' + (st.healthConnected ? 'rgba(79,203,180,.34)' : 'rgba(255,255,255,.09)'), transition: 'all .25s',
+      },
+      healthDotStyle: {
+        flex: 'none', width: 10, height: 10, borderRadius: '50%',
+        background: st.healthConnected ? '#4fcbb4' : '#68768a',
+        boxShadow: st.healthConnected ? '0 0 10px rgba(79,203,180,.7)' : 'none',
+      },
+      healthBtnStyle: {
+        minHeight: 40, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0 15px',
+        borderRadius: 11, fontFamily: "'Bebas Neue',sans-serif", fontSize: 14, letterSpacing: '.07em', cursor: 'pointer', whiteSpace: 'nowrap',
+        background: st.healthConnected ? 'rgba(255,255,255,.06)' : 'linear-gradient(135deg,#4fcbb4,#2a8a7a)',
+        border: st.healthConnected ? '1px solid rgba(255,255,255,.14)' : 'none',
+        color: st.healthConnected ? '#c2cfdd' : '#04140f',
+      },
+
       tabBarStyle: { flex: 'none', display: 'flex', gap: 2, padding: '9px 8px ' + (ios ? 26 : 14) + 'px', borderTop: '1px solid rgba(255,255,255,.08)', background: 'rgba(6,8,16,.82)', backdropFilter: 'blur(18px)', position: 'relative', zIndex: 5 },
       tabs: tabDefs.map(function (t) {
         var on = t.keys.indexOf(st.screen) >= 0;

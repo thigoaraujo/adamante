@@ -1259,10 +1259,20 @@
     }).join('')}
   </div>
 
+  <div style="font-size:11px;letter-spacing:.13em;color:#75839a;text-transform:uppercase;margin-bottom:9px">Fonte de validação · automática</div>
+  <div style="${s(v.healthCardStyle)}">
+    <div style="${s(v.healthDotStyle)}"></div>
+    <div style="flex:1;min-width:0">
+      <div style="font-size:13.5px;font-weight:600">${esc(v.healthName)}</div>
+      <div style="font-size:11px;color:#8a97ab;margin-top:3px;line-height:1.4;text-wrap:pretty">${esc(v.healthStatus)}</div>
+    </div>
+    <div${on(v.connectHealth)}${hv('filter:brightness(1.08)')} style="${s(v.healthBtnStyle)}">${esc(v.healthBtnLabel)}</div>
+  </div>
+
   <div style="font-size:11px;letter-spacing:.13em;color:#75839a;text-transform:uppercase;margin-bottom:9px">Seus dados · LGPD</div>
   <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:16px">
-    <div${on(v.noop)}${hv('background:rgba(111,200,238,.18)')} style="display:flex;align-items:center;min-height:48px;padding:0 14px;border-radius:14px;background:rgba(111,200,238,.1);border:1px solid rgba(111,200,238,.32);cursor:pointer"><div style="flex:1;font-size:13px;font-weight:600;color:#6fc8ee">Exportar todos os meus dados</div><div style="font-size:11px;color:#75839a">até 15 dias</div></div>
-    <div${on(v.noop)}${hv('background:rgba(217,165,68,.1)')} style="display:flex;align-items:center;min-height:48px;padding:0 14px;border-radius:14px;border:1px solid rgba(217,165,68,.32);cursor:pointer"><div style="flex:1;font-size:13px;font-weight:600;color:#f0cd85">Excluir conta e todos os dados</div></div>
+    <div${on(v.exportData)}${hv('background:rgba(111,200,238,.18)')} style="display:flex;align-items:center;min-height:48px;padding:0 14px;border-radius:14px;background:rgba(111,200,238,.1);border:1px solid rgba(111,200,238,.32);cursor:pointer"><div style="flex:1;font-size:13px;font-weight:600;color:#6fc8ee">Exportar todos os meus dados</div><div style="font-size:11px;color:#75839a">baixa agora</div></div>
+    <div${on(v.askDelete)}${hv('background:rgba(217,165,68,.1)')} style="display:flex;align-items:center;min-height:48px;padding:0 14px;border-radius:14px;border:1px solid rgba(217,165,68,.32);cursor:pointer"><div style="flex:1;font-size:13px;font-weight:600;color:#f0cd85">Excluir conta e todos os dados</div></div>
   </div>
 
   <div style="font-size:11px;letter-spacing:.13em;color:#75839a;text-transform:uppercase;margin-bottom:9px">Sobre</div>
@@ -1504,6 +1514,18 @@ ${v.restartAsk ? `
       <div style="display:flex;gap:9px">
         <div${on(v.doRestart)}${hv('filter:brightness(1.08)')} style="flex:1;min-height:48px;display:flex;align-items:center;justify-content:center;border-radius:12px;background:linear-gradient(135deg,#d9a544,#b8842c);font-family:'Bebas Neue',sans-serif;font-size:17px;letter-spacing:.06em;color:#191202;cursor:pointer">RECOMEÇAR</div>
         <div${on(v.cancelRestart)}${hv('color:#e8eef5')} style="min-height:48px;display:flex;align-items:center;padding:0 16px;border-radius:12px;border:1px solid rgba(255,255,255,.16);font-size:12.5px;color:#8a97ab;cursor:pointer">Cancelar</div>
+      </div>
+    </div>
+  </div>` : ''}
+
+${v.deleteAsk ? `
+  <div${on(v.cancelDelete)} style="position:absolute;inset:0;z-index:89;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:26px;background:rgba(4,6,12,.9);backdrop-filter:blur(12px);animation:admFadeIn .22s ease-out">
+    <div${on(v.noopStop)} style="width:100%;max-width:320px;background:linear-gradient(180deg,rgba(20,14,14,.99),rgba(12,8,8,.99));border:1px solid rgba(217,120,90,.4);border-radius:20px;padding:20px 18px;box-shadow:0 24px 60px rgba(0,0,0,.6);animation:admRise .32s cubic-bezier(.2,.8,.2,1);text-align:center">
+      <div style="font-family:'Bebas Neue',sans-serif;font-size:25px;letter-spacing:.03em;margin-bottom:8px">EXCLUIR A CONTA?</div>
+      <div style="font-size:12.5px;line-height:1.55;color:#c2cfdd;margin-bottom:16px;text-wrap:pretty">Isto apaga tudo deste aparelho — personagem, progresso, aparências desbloqueadas e fotos. Não dá para desfazer. É o seu direito de exclusão pela LGPD.</div>
+      <div style="display:flex;gap:9px">
+        <div${on(v.doDelete)}${hv('filter:brightness(1.08)')} style="flex:1;min-height:48px;display:flex;align-items:center;justify-content:center;border-radius:12px;background:linear-gradient(135deg,#c8563a,#9a3d28);font-family:'Bebas Neue',sans-serif;font-size:17px;letter-spacing:.06em;color:#fff;cursor:pointer">EXCLUIR TUDO</div>
+        <div${on(v.cancelDelete)}${hv('color:#e8eef5')} style="min-height:48px;display:flex;align-items:center;padding:0 16px;border-radius:12px;border:1px solid rgba(255,255,255,.16);font-size:12.5px;color:#8a97ab;cursor:pointer">Cancelar</div>
       </div>
     </div>
   </div>` : ''}`;
