@@ -800,8 +800,8 @@
       <div style="${s(v.enemyGroupStyle)}">
         <div style="position:absolute;left:50%;bottom:-16px;width:150px;height:52px;margin-left:-75px;border-radius:50%;background:radial-gradient(closest-side,rgba(0,0,0,.8),transparent);transform:rotateX(74deg);pointer-events:none"></div>
         <div style="${s(v.enemyArtStyle)}">
-          <div style="position:absolute;inset:0;background:linear-gradient(160deg,rgba(217,165,68,.22),transparent 62%);pointer-events:none"></div>
-          <img class="adm-art" src="${esc(v.monArt)}" alt="" style="position:relative">
+          ${v.modeConfronto ? '' : `<div style="position:absolute;inset:0;background:linear-gradient(160deg,rgba(217,165,68,.22),transparent 62%);pointer-events:none"></div>
+          <img class="adm-art" src="${esc(v.monArt)}" alt="" style="position:relative">`}
 
           ${v.impactOn ? `<div style="position:absolute;inset:-20%;overflow:hidden;pointer-events:none">
             <div style="position:absolute;left:0;top:0;width:100%;height:44%;background:linear-gradient(90deg,transparent,rgba(255,255,255,.95),transparent);filter:blur(2px);animation:admSlash .5s cubic-bezier(.3,.7,.2,1) forwards"></div>
@@ -840,7 +840,7 @@
             </div>
             <div style="${s(v.clashEnemyFace)}">
               <div style="font-size:7.5px;letter-spacing:.15em;color:#f0cd85;text-transform:uppercase">Sentinela</div>
-              <div style="flex:1;border-radius:6px;border:1px dashed rgba(255,255,255,.16);background:rgba(0,0,0,.3);margin:5px 0"></div>
+              <div style="flex:1;border-radius:6px;border:1px solid rgba(255,255,255,.1);background:rgba(0,0,0,.3);margin:5px 0;overflow:hidden"><img class="adm-art" src="${esc(v.monArt)}" alt=""></div>
               <div style="font-family:'Bebas Neue',sans-serif;font-size:13px;line-height:1.02;letter-spacing:.02em">${esc(v.enemyCardName)}</div>
               <div style="${s(v.enemyCardNumStyle)}">${esc(v.enemyCardNum)}</div>
             </div>
@@ -865,7 +865,7 @@
             </div>
             <div style="${s(v.clashPlayerFace)}">
               <div style="font-size:7.5px;letter-spacing:.15em;color:#6fc8ee;text-transform:uppercase">Você</div>
-              <div style="flex:1;border-radius:6px;border:1px dashed rgba(255,255,255,.16);background:rgba(0,0,0,.3);margin:5px 0"></div>
+              <div style="flex:1;border-radius:6px;border:1px solid rgba(255,255,255,.1);background:rgba(0,0,0,.3);margin:5px 0;overflow:hidden">${v.clashPlayerArt ? `<img class="adm-art" src="${esc(v.clashPlayerArt)}" alt="">` : ''}</div>
               <div style="font-family:'Bebas Neue',sans-serif;font-size:13px;line-height:1.02;letter-spacing:.02em">${esc(v.playerCardName)}</div>
               <div style="${s(v.playerCardNumStyle)}">${esc(v.playerCardNum)}</div>
             </div>

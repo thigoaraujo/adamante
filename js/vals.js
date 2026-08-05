@@ -952,6 +952,7 @@
       enemyCardNum: b && b.enemyCard ? (b.enemyCard.dano ? b.enemyCard.dano + ' DANO' : '+' + b.enemyCard.def + ' DEF') : '',
       enemyCardNumStyle: { fontFamily: "'Bebas Neue',sans-serif", fontSize: 12, letterSpacing: '.05em', color: '#f0cd85', marginTop: 2 },
       playerCardName: b && b.playerCard ? b.playerCard.nome : '',
+      clashPlayerArt: b && b.playerCard ? 'assets/art/card_' + b.playerCard.id + '.png' : '',
       playerCardNum: b && b.playerCard ? (b.playerCard.dano ? b.playerCard.dano + ' DANO' : b.playerCard.cura ? b.playerCard.cura + ' CURA' : b.playerCard.def ? '+' + b.playerCard.def + ' DEF' : 'EFEITO') : '',
       playerCardNumStyle: { fontFamily: "'Bebas Neue',sans-serif", fontSize: 12, letterSpacing: '.05em', color: b && b.playerCard ? RAR[b.playerCard.rar] : '#6fc8ee', marginTop: 2 },
       primaryAction: st.battleMode === 'livre' ? function () { app.endTurn(); }
@@ -1000,15 +1001,20 @@
       worldStyle: { position: 'absolute', inset: 0, transformStyle: 'preserve-3d', animation: st.impact ? 'admCam .62s cubic-bezier(.25,.75,.25,1)' : 'none' },
       impactOn: !!st.impact,
       enemyGroupStyle: { position: 'absolute', left: '50%', bottom: '25%', width: 172, marginLeft: -86, transformStyle: 'preserve-3d', transform: 'translateZ(-70px)' },
-      enemyArtStyle: {
+      // no Confronto a arte do palco é ocultada: a Sentinela aparece na carta
+      // dela, e a caixa cheia colidiria com o slot de carta do jogador
+      enemyArtStyle: Object.assign({
         position: 'relative', width: 172, height: 214, borderRadius: 13,
-        border: '1px solid rgba(217,165,68,.34)',
-        background: 'linear-gradient(170deg,rgba(217,165,68,.2),rgba(4,6,16,.95))',
         display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden',
-        boxShadow: '0 34px 64px rgba(0,0,0,.8), 0 0 60px rgba(217,165,68,.24), inset 0 1px 0 rgba(255,255,255,.14)',
         transformStyle: 'preserve-3d',
         animation: st.impact ? 'admRecoil .58s cubic-bezier(.2,.8,.2,1)' : 'admDrift 5.4s ease-in-out infinite',
-      },
+      }, st.battleMode === 'confronto'
+        ? { border: 'none', background: 'transparent', boxShadow: 'none' }
+        : {
+          border: '1px solid rgba(217,165,68,.34)',
+          background: 'linear-gradient(170deg,rgba(217,165,68,.2),rgba(4,6,16,.95))',
+          boxShadow: '0 34px 64px rgba(0,0,0,.8), 0 0 60px rgba(217,165,68,.24), inset 0 1px 0 rgba(255,255,255,.14)',
+        }),
       enemyHpStyle: { height: '100%', width: b ? (b.ehp / b.ehpMax * 100) + '%' : '0%', background: 'linear-gradient(90deg,#d9a544,#b8842c)', borderRadius: 5, transition: 'width .4s cubic-bezier(.2,.8,.2,1)' },
       enemyHpLabel: b ? b.ehp + '/' + b.ehpMax : '',
       enemyIntent: enemyStep ? enemyStep.intent : '',
