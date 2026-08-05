@@ -97,6 +97,43 @@ node serve.js www 8100     # http://127.0.0.1:8100/
 Não há projeto iOS nativo: o GDD prevê React Native para o produto, e para o protótipo o PWA
 entrega a mesma tela cheia sem precisar de Mac, Xcode e conta de desenvolvedor.
 
+## Testes
+
+```bash
+npm test     # node test/core.test.js
+```
+
+41 testes sobre a camada de regras, cobrindo os extremos que o GDD §21.1 lista: usuário sem
+bioimpedância, nível 1 e 20, atributo 1 e 20, fadiga máxima, medição pior que a anterior.
+Sem framework — são funções puras, `assert` basta.
+
+Dois achados dos testes ficam registrados aqui:
+
+- **A tabela de XP do GDD tem um erro de digitação no nível 19.** A tabela impressa diz 6.620;
+  a fórmula do próprio documento, `round(80 × n^1.5, dezena)`, dá 6.630 (80 × 19^1.5 =
+  6.625,53). A fórmula é normativa, então o código segue ela.
+- **Ponto flutuante comia um degrau na bioimpedância.** `1.2 / 0.4` dá `2.9999999999999996`
+  em binário, então um ganho de 1,2 kg de massa magra valia 2 degraus em vez de 3. O cálculo
+  passou a contar em gramas (`core.js → pontosDaMedicao`).
+
+## Persistência
+
+O personagem e o progresso ficam no `localStorage`, em `adamante.save`. Grava com 400 ms de
+folga (o tween de ouro e XP dispara `setState` a cada quadro) e também ao esconder ou fechar
+o app. Com personagem salvo, o splash entrega o jogo direto em vez do login.
+
+**Fica de fora, de propósito:** e-mail e senha (credencial não vai para o disco), batalha em
+curso, bloco de foco do cronômetro, overlays e foco de campo.
+
+As missões guardam só os ids concluídos, não o array inteiro — assim acrescentar uma missão
+nova depois não fica escondida por um save antigo. Save corrompido ou de versão desconhecida
+é descartado sem derrubar a tela.
+
+**As prévias do portfólio não persistem nada.** Quando a URL traz `start=`, `name=`,
+`returning=`, `guild=` ou `battleMode=`, o app entra em modo demonstração: não lê nem grava.
+É o que mantém os aparelhos do `index.html` abrindo sempre iguais. `?fresh=1` apaga o save e
+começa do zero.
+
 ## Estrutura
 
 ```

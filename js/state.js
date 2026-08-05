@@ -16,6 +16,20 @@
   // relógio do cronômetro: o protótipo comprime os 25 min num tempo de demonstração
   var TICK_MS = 120, TICK_DEC = 13;
 
+  // ── persistência ──────────────────────────────────────────────────────────
+  // Guarda personagem e progresso. Fica de fora tudo que é transitório: batalha
+  // em curso, bloco de foco, overlays, foco de campo e, principalmente, e-mail e
+  // senha — credencial não vai para o disco.
+  var CHAVE = 'adamante.save', VERSAO = 1, SALVAR_MS = 400;
+  var SALVAR = [
+    'level', 'xp', 'points', 'gold', 'streak', 'fatigue', 'alloc', 'weekly', 'medDone',
+    'charName', 'clsIdx', 'trainDays', 'consent', 'sexo', 'nascimento', 'nomeCompleto', 'usuario',
+    'gearOwned', 'gearEquipped', 'dupes', 'epic', 'epicDone', 'restDays',
+    'privacy', 'healthConnected', 'flipped', 'contested', 'confirms', 'tradeState',
+    'myProofSent', 'myConfirms', 'guildEmpty', 'guildGoal', 'rankTab',
+    'portraits', 'unlockedLooks',
+  ];
+
   function App(props) {
     this.props = props || {};
     var alloc = {}; ATTRS.forEach(function (a) { alloc[a.key] = 0; });
@@ -87,8 +101,70 @@
     for (var j in next) merged[j] = next[j];
     this.state = merged;
     this.didUpdate(prev);
+    this.agendarSave();
     if (this._onRender) this._onRender();
     if (cb) cb();
+  };
+
+  // grava com folga: o tween de ouro e XP dispara setState a cada quadro, e não
+  // faz sentido escrever no disco 60 vezes por segundo
+  P.agendarSave = function () {
+    if (!this.persistir) return;
+    var self = this;
+    if (this._saveT) return;
+    this._saveT = setTimeout(function () { self._saveT = null; self.salvar(); }, SALVAR_MS);
+  };
+
+  P.salvar = function () {
+    if (!this.persistir) return;
+    var st = this.state, dados = {};
+    SALVAR.forEach(function (k) { dados[k] = st[k]; });
+    // das missões guarda só o que o jogador fez; o resto vem da definição atual,
+    // então acrescentar missão nova depois não fica escondido por um save velho
+    dados.missoesFeitas = st.missions.filter(function (m) { return m.done; }).map(function (m) { return m.id; });
+    var texto;
+    try { texto = JSON.stringify({ v: VERSAO, dados: dados }); } catch (e) { return; }
+    if (texto === this._ultimoSave) return;
+    try { localStorage.setItem(CHAVE, texto); this._ultimoSave = texto; } catch (e) { /* quota ou modo privado */ }
+  };
+
+  // Devolve true quando havia personagem para retomar.
+  P.carregar = function () {
+    if (!this.persistir) return false;
+    var bruto;
+    try { bruto = localStorage.getItem(CHAVE); } catch (e) { return false; }
+    if (!bruto) return false;
+    var pacote;
+    try { pacote = JSON.parse(bruto); } catch (e) { return false; }
+    if (!pacote || pacote.v !== VERSAO || !pacote.dados) return false;
+
+    var d = pacote.dados, st = this.state;
+    SALVAR.forEach(function (k) {
+      var v = d[k];
+      if (v === undefined || v === null) return;
+      // só aceita o que tem o mesmo tipo do padrão, para um save corrompido
+      // não derrubar a tela
+      if (Array.isArray(st[k]) !== Array.isArray(v)) return;
+      if (typeof st[k] === 'number' && typeof v !== 'number') return;
+      st[k] = v;
+    });
+    // atributos alocados: mescla por sigla, ignorando chave desconhecida
+    if (d.alloc) {
+      var alloc = {};
+      ATTRS.forEach(function (a) { alloc[a.key] = typeof d.alloc[a.key] === 'number' ? d.alloc[a.key] : 0; });
+      st.alloc = alloc;
+    }
+    // missões: reaplica o "feito" sobre a definição de hoje
+    if (Array.isArray(d.missoesFeitas)) {
+      var feitas = d.missoesFeitas;
+      st.missions = st.missions.map(function (m) {
+        return feitas.indexOf(m.id) >= 0 ? Object.assign({}, m, { done: true }) : m;
+      });
+    }
+    // os contadores animados começam no valor real, senão o cabeçalho conta de 0
+    st.animGold = st.gold; st.animXp = st.xp;
+    this._ultimoSave = bruto;
+    return !!(st.charName && st.charName.trim());
   };
   P.later = function (fn, ms) {
     var self = this;
@@ -96,7 +172,12 @@
     this._t.push(t);
     return t;
   };
-  P.destroy = function () { this._alive = false; this._t.forEach(clearTimeout); this._t = []; this.stopTimerClock(); };
+  P.destroy = function () {
+    if (this._saveT) { clearTimeout(this._saveT); this._saveT = null; }
+    this.salvar();                       // não perde o que aconteceu nos últimos 400 ms
+    this._alive = false; this._t.forEach(clearTimeout); this._t = [];
+    this.stopTimerClock();
+  };
 
   P.didUpdate = function (ps) {
     if (ps.gold !== this.state.gold) this.tween('animGold', ps.gold, this.state.gold);
@@ -127,7 +208,11 @@
 
   P.mount = function () {
     var self = this;
-    if (this.state.screen === 'splash') this.later(function () { self.transitionTo('login'); }, 2200);
+    // com personagem salvo, o splash entrega direto o jogo em vez do login
+    if (this.state.screen === 'splash') {
+      var destino = this._retomado ? 'inicio' : 'login';
+      this.later(function () { self.transitionTo(destino); }, 2200);
+    }
   };
 
   P.transitionTo = function (screen, extra) {
@@ -783,6 +868,17 @@
   };
   P.askDelete = function () { this.setState({ deleteAsk: true }); };
   P.cancelDelete = function () { this.setState({ deleteAsk: false }); };
+  // Estado de fábrica de tudo que é persistido, tirado de uma instância nova —
+  // assim a lista SALVAR e o que "excluir conta" zera nunca saem de sincronia.
+  P.padroesPersistidos = function () {
+    var zero = new App({}), patch = {};
+    SALVAR.forEach(function (k) { patch[k] = zero.state[k]; });
+    patch.missions = zero.state.missions;
+    patch.draft = {};
+    patch.proofPhoto = {};
+    return patch;
+  };
+
   P.deleteAccount = function () {
     try {
       var kill = [];
@@ -790,17 +886,14 @@
       kill.forEach(function (k) { localStorage.removeItem(k); });
     } catch (e) { /* indisponível */ }
     this.stopTimerClock();
-    var alloc = {}; ATTRS.forEach(function (a) { alloc[a.key] = 0; });
-    this.setState({
-      deleteAsk: false, screen: 'login', cover: null, wipe: null,
-      level: 1, xp: 0, points: 0, gold: 0, streak: 0, fatigue: 0, alloc: alloc, draft: {},
-      missions: this.state.missions.map(function (m) { return Object.assign({}, m, { done: false }); }),
-      weekly: 0, medDone: false, epic: null, restDays: [], dupes: { c1: 6, c3: 5, c5: 5 },
-      charName: '', email: '', senha: '', battle: null, timer: null, levelUp: false,
-      portraits: { guerreiro: 0, ladino: 0, mago: 0, clerigo: 0 },
-      unlockedLooks: { guerreiro: [0], ladino: [0], mago: [0], clerigo: [0] }, epicDone: false,
-      gearOwned: [], gearEquipped: [], proofPhoto: {}, healthConnected: false,
-    });
+    // §19: apaga TUDO que é pessoal, inclusive nome, nascimento, usuário, sexo,
+    // consentimento e preferências de privacidade
+    var patch = this.padroesPersistidos();
+    patch.deleteAsk = false; patch.screen = 'login'; patch.cover = null; patch.wipe = null;
+    patch.email = ''; patch.senha = ''; patch.battle = null; patch.timer = null; patch.levelUp = false;
+    patch.animGold = 0; patch.animXp = 0;
+    this._ultimoSave = null;
+    this.setState(patch);
     this.toast('Conta excluída', 'Todos os seus dados foram apagados deste aparelho.', '#7f8ec0');
   };
 

@@ -4,6 +4,7 @@
   "private": true,
   "description": "Adamante — RPG de hábito, com consequência real. App offline.",
   "scripts": {
+    "test": "node test/core.test.js",
     "build": "node build-www.js",
     "serve": "node serve.js",
     "sync": "npm run build && cap sync android",

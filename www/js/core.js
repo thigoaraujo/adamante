@@ -71,7 +71,10 @@
   function pontosDaMedicao(deltaMassaMagraKg, subiuAguaAoMenos1pp) {
     if (!(deltaMassaMagraKg > 0)) return 0;                 // pior nunca é negativo
     var bonus = subiuAguaAoMenos1pp ? 1 : 0;
-    return Math.min(5, Math.floor(deltaMassaMagraKg / 0.4) + bonus);
+    // conta em gramas: 1.2/0.4 dá 2.9999999999999996 em ponto flutuante, e o
+    // floor engoliria um degrau inteiro — o ganho de 1,2 kg valeria 2 em vez de 3
+    var degraus = Math.floor(Math.round(deltaMassaMagraKg * 1000) / 400);
+    return Math.min(5, degraus + bonus);
   }
   function podeMedir(diasDesdeUltima) { return diasDesdeUltima >= 7; }
 

@@ -27,9 +27,26 @@
     var root = document.getElementById('adm-root');
     if (!root) return;
 
+    var q = new URLSearchParams(location.search);
     var app = new App(readProps());
-    app.loadProofPhotos();
-    app.loadPortraits();
+
+    // Só o app de verdade retoma o personagem. As prévias do portfólio passam
+    // start=/name=/returning=/guild= e precisam abrir sempre igual, então nessas
+    // não se lê nem se grava nada. ?fresh=1 força começar do zero.
+    var demo = q.has('start') || q.has('startScreen') || q.has('name') || q.has('characterName')
+      || q.has('returning') || q.has('guild') || q.has('guildEmpty') || q.has('battleMode');
+    app.persistir = !demo && !q.has('fresh');
+    if (q.has('fresh')) { try { localStorage.removeItem('adamante.save'); } catch (e) { /* nada */ } }
+
+    if (app.persistir) {
+      app.loadProofPhotos();
+      app.loadPortraits();            // chaves antigas, de quem já usava o app
+      app._retomado = app.carregar();
+    }
+
+    // fecha o app com o progresso no disco, sem esperar o debounce
+    global.addEventListener('pagehide', function () { app.salvar(); });
+    document.addEventListener('visibilitychange', function () { if (document.hidden) app.salvar(); });
     global.adamante = app;
 
     var handlers = null;
