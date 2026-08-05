@@ -63,10 +63,11 @@
     { nome: 'Duda', nivel: 8, missao: 'Fechar 6 tarefas do dia', cat: 'oficio', xp: 15, feitas: 3, src: 'Autodeclarado', ok: true, seed: ['Bru', 'Nina'], msg: 'Captura do quadro de tarefas com tudo em concluído.' },
   ];
 
+  // §17 equipamento: comprado com ouro, dá Defesa e (no talismã) chance de crítico
   var GEAR = [
-    { nome: 'Bracelete Rúnico', tipo: 'Bracelete', meta: '+2 Defesa', rar: 'incomum' },
-    { nome: 'Elmo de Escória', tipo: 'Elmo', meta: '+3 Defesa', rar: 'rara' },
-    { nome: 'Talismã de Cinzas', tipo: 'Talismã', meta: '+1 Defesa · +5% crítico', rar: 'rara' },
+    { nome: 'Bracelete Rúnico', tipo: 'Bracelete', meta: '+2 Defesa', rar: 'incomum', def: 2, crit: 0, cost: 180 },
+    { nome: 'Elmo de Escória', tipo: 'Elmo', meta: '+3 Defesa', rar: 'rara', def: 3, crit: 0, cost: 340 },
+    { nome: 'Talismã de Cinzas', tipo: 'Talismã', meta: '+1 Defesa · +5% crítico', rar: 'rara', def: 1, crit: 1, cost: 420 },
   ];
 
   var TRADES = [

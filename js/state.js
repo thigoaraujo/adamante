@@ -7,7 +7,7 @@
   var D = global.AdmData, C = global.AdmCore;
   var ATTRS = D.ATTRS, CLASSES = D.CLASSES, CARDS = D.CARDS;
   var ENEMY_DECK = D.ENEMY_DECK, ENEMY_SCRIPT = D.ENEMY_SCRIPT;
-  var GUILD = D.GUILD, TRADES = D.TRADES, MAJORITY = D.MAJORITY;
+  var GUILD = D.GUILD, TRADES = D.TRADES, MAJORITY = D.MAJORITY, GEAR = D.GEAR;
   var STUDY = D.STUDY, EPIC = D.EPIC, EPIC_PRESETS = D.EPIC_PRESETS, GUILD_GOALS = D.GUILD_GOALS, REST = D.REST;
   var RAR = D.RAR, RARL = D.RARL, RAR_ORDER = D.RAR_ORDER, REFORGE = D.REFORGE;
   var LOOK_UNLOCK = D.LOOK_UNLOCK;
@@ -63,6 +63,8 @@
       // desbloqueio: só a primeira aparência vem liberada; épica já concluída?
       unlockedLooks: { guerreiro: [0], ladino: [0], mago: [0], clerigo: [0] },
       epicDone: false, restartAsk: false,
+      // §17 equipamento comprado e equipado (índices em GEAR)
+      gearOwned: [], gearEquipped: [],
     };
     this._t = [];
     this._timerInt = null;
@@ -157,7 +159,11 @@
   };
   P.effective = function (k) { return C.atributoEfetivo(this.total(k), this.state.fatigue); };
   P.hpMax = function () { return C.pvMaximo(this.state.level, mod(this.effective('CON')), this.cls().id); };
-  P.defense = function () { return C.defesa(mod(this.effective('DES'))); };
+  P.defBonus = function () { var s = 0; this.state.gearEquipped.forEach(function (i) { s += GEAR[i].def; }); return s; };
+  P.critBonus = function () { var s = 0; this.state.gearEquipped.forEach(function (i) { s += GEAR[i].crit; }); return s; };
+  P.critThreshold = function () { return Math.max(2, C.limiarCritico(this.cls().id) - this.critBonus()); };
+  P.isCrit = function (rolagem) { return rolagem >= this.critThreshold(); };
+  P.defense = function () { return C.defesa(mod(this.effective('DES')), this.defBonus()); };
   P.energyMax = function () { return C.energiaMaxima(this.cls().id); };
   P.costOf = function (k, n) {
     var a = ATTRS.find(function (x) { return x.key === k; });
@@ -341,6 +347,22 @@
   };
   P.closeTimer = function () { this.stopTimerClock(); this.setState({ timer: null }); };
 
+  // ── §17 equipamento: comprar com ouro, equipar/desequipar ─────────────────
+  P.buyGear = function (i) {
+    var st = this.state, g = GEAR[i];
+    if (st.gearOwned.indexOf(i) >= 0) return;
+    if (st.gold < g.cost) { this.toast('Ouro insuficiente', 'Faltam ' + (g.cost - st.gold) + ' de ouro para forjar ' + g.nome + '.', '#d9a544'); return; }
+    this.setState({ gold: st.gold - g.cost, gearOwned: st.gearOwned.concat([i]), gearEquipped: st.gearEquipped.concat([i]) });
+    this.toast(g.nome + ' equipado', '−' + g.cost + ' de ouro · ' + g.meta + '. Já vale na Defesa e no combate.', '#4fcbb4');
+  };
+  P.toggleGear = function (i) {
+    var st = this.state;
+    if (st.gearOwned.indexOf(i) < 0) { this.buyGear(i); return; }
+    var eq = st.gearEquipped.slice(), at = eq.indexOf(i);
+    if (at >= 0) eq.splice(at, 1); else eq.push(i);
+    this.setState({ gearEquipped: eq });
+  };
+
   // ── §11.4 missão épica: criação, progresso, conclusão e vencimento ────────
   P.openEpicForm = function () { this.setState({ epicForm: true, epicPreset: 0, epicDays: 30 }); };
   P.closeEpicForm = function () { this.setState({ epicForm: false }); };
@@ -463,7 +485,7 @@
     var pc = b.playerCard, ec = b.enemyCard, cls = this.cls();
     var pm = mod(this.effective(cls.prim));
     var raw = pc.dano ? pc.dano + pm * 2 : 0;
-    var crit = raw > 0 && C.ehCritico(Math.random() * 20 + 1, cls.id);
+    var crit = raw > 0 && this.isCrit(Math.random() * 20 + 1);
     if (crit) raw *= 2;
     var heal = pc.cura ? pc.cura + mod(this.effective('SAB')) * 2 : 0;
     var myDef = pc.def || 0, itsDef = ec.def || 0;
@@ -552,7 +574,7 @@
     this.later(function () { self.setState({ flying: null }); }, 720);
     if (c.dano) {
       var m = mod(this.effective(this.cls().prim));
-      var crit = C.ehCritico(Math.random() * 20 + 1, this.cls().id);
+      var crit = this.isCrit(Math.random() * 20 + 1);
       var dmg = C.danoFinal(c.dano, m, 14);
       if (crit) dmg *= 2;
       nb.ehp = Math.max(0, b.ehp - dmg);
@@ -718,6 +740,7 @@
       missions: this.state.missions.map(function (m) { return Object.assign({}, m, { done: false }); }),
       epic: null, epicForm: false, restDays: [], restOpen: false,
       dupes: { c1: 6, c3: 5, c5: 5 }, charName: '', battle: null, timer: null, levelUp: false,
+      gearOwned: [], gearEquipped: [],
     });
     this.toast('Personagem recomeçado', 'Do zero. As aparências que você desbloqueou continuam disponíveis.', '#7f8ec0');
   };

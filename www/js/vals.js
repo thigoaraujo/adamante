@@ -565,6 +565,35 @@
       };
     });
 
+    // ── equipamento (§17) ─────────────────────────────────────────────────────
+    var gearRows = GEAR.map(function (g, i) {
+      var owned = st.gearOwned.indexOf(i) >= 0, equipped = st.gearEquipped.indexOf(i) >= 0;
+      var col = RAR[g.rar], afford = st.gold >= g.cost;
+      return {
+        nome: g.nome, tipo: g.tipo, meta: g.meta, rarLabel: RARL[g.rar],
+        action: function () { app.toggleGear(i); },
+        btnLabel: !owned ? g.cost + ' OURO' : equipped ? 'EQUIPADO' : 'EQUIPAR',
+        iconStyle: {
+          flex: 'none', width: 34, height: 34, borderRadius: 10, transform: 'rotate(45deg)',
+          background: 'linear-gradient(135deg,' + col + '44,rgba(0,0,0,.3))', border: '1px solid ' + col + '99',
+        },
+        wrapStyle: {
+          display: 'flex', alignItems: 'center', gap: 12, padding: '11px 13px', borderRadius: 14,
+          background: equipped ? 'rgba(79,203,180,.08)' : 'rgba(255,255,255,.04)',
+          border: '1px solid ' + (equipped ? 'rgba(79,203,180,.34)' : 'rgba(255,255,255,.09)'), transition: 'all .2s',
+        },
+        metaStyle: { fontSize: 11, color: col, marginTop: 2 },
+        btnStyle: {
+          minHeight: 38, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0 13px',
+          borderRadius: 10, fontFamily: "'Bebas Neue',sans-serif", fontSize: 14, letterSpacing: '.06em',
+          cursor: 'pointer', whiteSpace: 'nowrap',
+          background: equipped ? 'rgba(79,203,180,.16)' : !owned ? (afford ? 'rgba(217,165,68,.16)' : 'rgba(255,255,255,.05)') : 'rgba(255,255,255,.06)',
+          border: '1px solid ' + (equipped ? 'rgba(79,203,180,.4)' : !owned ? 'rgba(217,165,68,.4)' : 'rgba(255,255,255,.14)'),
+          color: equipped ? '#4fcbb4' : !owned ? (afford ? '#f0cd85' : '#68768a') : '#c2cfdd',
+        },
+      };
+    });
+
     // ── cronômetro de estudo ─────────────────────────────────────────────────
     var tm = st.timer;
     var fmtClock = function (sec) {
@@ -915,6 +944,10 @@
       }),
       goFadiga: function () { app.openRest(); },
 
+      gearRows: gearRows, defBonus: app.defBonus(), critBonus: app.critBonus(),
+      gearNote: app.defBonus() || app.critBonus()
+        ? 'Equipado: +' + app.defBonus() + ' Defesa' + (app.critBonus() ? ' · +' + (app.critBonus() * 5) + '% crítico' : '')
+        : 'Nenhum equipamento. Compre com ouro para reforçar a Defesa.',
       attrRows: attrRows, radarPts: radarPts, radarLabels: radarLabels,
       radarNote: st.fatigue >= 3 ? 'violeta = enfraquecido pela Fadiga' : cls.prim + ' é o seu atributo primário',
       radarNoteStyle: { fontSize: 10.5, color: st.fatigue >= 3 ? '#aebdd8' : '#f0cd85' },

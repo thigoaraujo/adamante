@@ -614,6 +614,25 @@
     }).join('')}
   </div>
 
+  <div style="display:flex;align-items:baseline;gap:9px;margin:20px 0 4px">
+    <div style="font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:.06em;color:#c2cfdd">EQUIPAMENTO</div>
+    <div style="flex:1"></div>
+    <div style="font-size:10.5px;color:#75839a">forjado com ouro · reduz o dano recebido</div>
+  </div>
+  <div style="font-size:11px;color:#8a97ab;margin-bottom:10px">${esc(v.gearNote)}</div>
+  <div style="display:flex;flex-direction:column;gap:8px">
+    ${v.gearRows.map(function (g) {
+      return `<div style="${s(g.wrapStyle)}">
+        <div style="${s(g.iconStyle)}"></div>
+        <div style="flex:1;min-width:0">
+          <div style="display:flex;align-items:baseline;gap:7px"><span style="font-size:13.5px;font-weight:600">${esc(g.nome)}</span><span style="font-size:10px;color:#68768a">${esc(g.tipo)} · ${esc(g.rarLabel)}</span></div>
+          <div style="${s(g.metaStyle)}">${esc(g.meta)}</div>
+        </div>
+        <div${on(g.action)}${hv('filter:brightness(1.1)')} style="${s(g.btnStyle)}">${esc(g.btnLabel)}</div>
+      </div>`;
+    }).join('')}
+  </div>
+
   <div${on(v.goMedicao)}${hv('border-color:rgba(111,200,238,.4)')} style="display:flex;align-items:center;gap:12px;margin-top:14px;background:rgba(255,255,255,.045);border:1px solid rgba(255,255,255,.09);border-radius:16px;padding:14px 15px;cursor:pointer;min-height:44px">
     <div style="flex:1"><div style="font-size:13.5px;font-weight:600">Medição de bioimpedância</div><div style="font-size:11.5px;color:#8a97ab;margin-top:2px">${esc(v.medicaoSub)}</div></div>
     <div style="font-family:'Bebas Neue',sans-serif;font-size:18px;color:#6fc8ee">›</div>
