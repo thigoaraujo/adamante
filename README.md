@@ -176,10 +176,11 @@ declaração entra com `!important` numa folha própria.
 - **Fonte de validação automática** (§18.1) — cartão de Health Connect (Android) / Apple Saúde
   (iOS) no Perfil, com conectar/desconectar. Conectado, é a camada de confiança mais alta:
   passos, treinos, frequência e sono validando missões sem foto.
-- **Equipamento** (§8.2/§17) — na Ficha, três peças (bracelete, elmo, talismã) compradas com
-  ouro. O bônus entra de verdade: soma na Defesa (que reduz o dano no combate, via
-  `core.defesa`) e o talismã amplia a chance de crítico (limiar do d20 −1). Equipar/desequipar
-  à vontade; comprar é permanente e reseta ao recomeçar o personagem.
+- **Equipamento** (§8.2/§17) — na Ficha, **doze peças** por slot (elmo, peito, escudo, manto,
+  luvas, botas, amuleto, anel), cada uma com ícone de pixel art (DCSS) e comprada com ouro.
+  O bônus entra de verdade: soma na Defesa (que reduz o dano no combate, via `core.defesa`) e
+  amuleto/anel ampliam a chance de crítico (limiar do d20 −1/−2). **Um item por slot** (equipar
+  troca o do mesmo slot); comprar é permanente e reseta ao recomeçar o personagem.
 - **Seletor de aparência com desbloqueio** — cada classe tem quatro personagens (variações de
   gênero e raça: guerreira, goblin, feiticeira, etc.). Só a primeira vem grátis; as outras
   desbloqueiam com **ouro** (250 e 600) ou **concluindo uma missão épica** (`data.js →

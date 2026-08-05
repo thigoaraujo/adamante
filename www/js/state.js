@@ -350,18 +350,23 @@
   P.closeTimer = function () { this.stopTimerClock(); this.setState({ timer: null }); };
 
   // ── §17 equipamento: comprar com ouro, equipar/desequipar ─────────────────
+  // equipa i tirando qualquer outro item do mesmo slot
+  P._equipInto = function (eq, i) {
+    var slot = GEAR[i].slot;
+    return eq.filter(function (j) { return GEAR[j].slot !== slot; }).concat([i]);
+  };
   P.buyGear = function (i) {
     var st = this.state, g = GEAR[i];
     if (st.gearOwned.indexOf(i) >= 0) return;
     if (st.gold < g.cost) { this.toast('Ouro insuficiente', 'Faltam ' + (g.cost - st.gold) + ' de ouro para forjar ' + g.nome + '.', '#d9a544'); return; }
-    this.setState({ gold: st.gold - g.cost, gearOwned: st.gearOwned.concat([i]), gearEquipped: st.gearEquipped.concat([i]) });
+    this.setState({ gold: st.gold - g.cost, gearOwned: st.gearOwned.concat([i]), gearEquipped: this._equipInto(st.gearEquipped, i) });
     this.toast(g.nome + ' equipado', '−' + g.cost + ' de ouro · ' + g.meta + '. Já vale na Defesa e no combate.', '#4fcbb4');
   };
   P.toggleGear = function (i) {
     var st = this.state;
     if (st.gearOwned.indexOf(i) < 0) { this.buyGear(i); return; }
-    var eq = st.gearEquipped.slice(), at = eq.indexOf(i);
-    if (at >= 0) eq.splice(at, 1); else eq.push(i);
+    var at = st.gearEquipped.indexOf(i);
+    var eq = at >= 0 ? st.gearEquipped.filter(function (j) { return j !== i; }) : this._equipInto(st.gearEquipped, i);
     this.setState({ gearEquipped: eq });
   };
 

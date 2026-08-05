@@ -623,7 +623,7 @@
   <div style="display:flex;flex-direction:column;gap:8px">
     ${v.gearRows.map(function (g) {
       return `<div style="${s(g.wrapStyle)}">
-        <div style="${s(g.iconStyle)}"></div>
+        <div style="${s(g.iconStyle)}"><img class="adm-art" src="${esc(g.art)}" alt="" style="padding:9%"></div>
         <div style="flex:1;min-width:0">
           <div style="display:flex;align-items:baseline;gap:7px"><span style="font-size:13.5px;font-weight:600">${esc(g.nome)}</span><span style="font-size:10px;color:#68768a">${esc(g.tipo)} · ${esc(g.rarLabel)}</span></div>
           <div style="${s(g.metaStyle)}">${esc(g.meta)}</div>

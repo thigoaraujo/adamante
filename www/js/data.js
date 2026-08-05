@@ -63,11 +63,21 @@
     { nome: 'Duda', nivel: 8, missao: 'Fechar 6 tarefas do dia', cat: 'oficio', xp: 15, feitas: 3, src: 'Autodeclarado', ok: true, seed: ['Bru', 'Nina'], msg: 'Captura do quadro de tarefas com tudo em concluído.' },
   ];
 
-  // §17 equipamento: comprado com ouro, dá Defesa e (no talismã) chance de crítico
+  // §17 equipamento: comprado com ouro, dá Defesa e (amuleto/anel) crítico.
+  // Um item por slot; o ícone vem de assets/art/gear_<índice>.png.
   var GEAR = [
-    { nome: 'Bracelete Rúnico', tipo: 'Bracelete', meta: '+2 Defesa', rar: 'incomum', def: 2, crit: 0, cost: 180 },
-    { nome: 'Elmo de Escória', tipo: 'Elmo', meta: '+3 Defesa', rar: 'rara', def: 3, crit: 0, cost: 340 },
-    { nome: 'Talismã de Cinzas', tipo: 'Talismã', meta: '+1 Defesa · +5% crítico', rar: 'rara', def: 1, crit: 1, cost: 420 },
+    { nome: 'Bracelete Rúnico', tipo: 'Luvas', slot: 'luvas', meta: '+2 Defesa', rar: 'incomum', def: 2, crit: 0, cost: 180 },
+    { nome: 'Elmo de Escória', tipo: 'Elmo', slot: 'elmo', meta: '+3 Defesa', rar: 'rara', def: 3, crit: 0, cost: 340 },
+    { nome: 'Talismã de Cinzas', tipo: 'Amuleto', slot: 'amuleto', meta: '+1 Defesa · +5% crítico', rar: 'rara', def: 1, crit: 1, cost: 420 },
+    { nome: 'Capacete de Bronze', tipo: 'Elmo', slot: 'elmo', meta: '+2 Defesa', rar: 'incomum', def: 2, crit: 0, cost: 160 },
+    { nome: 'Peitoral de Placas', tipo: 'Peito', slot: 'peito', meta: '+4 Defesa', rar: 'rara', def: 4, crit: 0, cost: 520 },
+    { nome: 'Cota de Malha', tipo: 'Peito', slot: 'peito', meta: '+3 Defesa', rar: 'incomum', def: 3, crit: 0, cost: 300 },
+    { nome: 'Túnica Rúnica', tipo: 'Peito', slot: 'peito', meta: '+2 Defesa', rar: 'incomum', def: 2, crit: 0, cost: 170 },
+    { nome: 'Escudo Torre', tipo: 'Escudo', slot: 'escudo', meta: '+4 Defesa', rar: 'rara', def: 4, crit: 0, cost: 480 },
+    { nome: 'Broquel', tipo: 'Escudo', slot: 'escudo', meta: '+2 Defesa', rar: 'comum', def: 2, crit: 0, cost: 140 },
+    { nome: 'Manto de Cinzas', tipo: 'Manto', slot: 'manto', meta: '+2 Defesa', rar: 'incomum', def: 2, crit: 0, cost: 200 },
+    { nome: 'Grevas de Ferro', tipo: 'Botas', slot: 'botas', meta: '+2 Defesa', rar: 'incomum', def: 2, crit: 0, cost: 190 },
+    { nome: 'Anel de Precisão', tipo: 'Anel', slot: 'anel', meta: '+10% crítico', rar: 'rara', def: 0, crit: 2, cost: 380 },
   ];
 
   var TRADES = [

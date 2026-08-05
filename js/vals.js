@@ -571,11 +571,12 @@
       var col = RAR[g.rar], afford = st.gold >= g.cost;
       return {
         nome: g.nome, tipo: g.tipo, meta: g.meta, rarLabel: RARL[g.rar],
+        art: 'assets/art/gear_' + i + '.png',
         action: function () { app.toggleGear(i); },
         btnLabel: !owned ? g.cost + ' OURO' : equipped ? 'EQUIPADO' : 'EQUIPAR',
         iconStyle: {
-          flex: 'none', width: 34, height: 34, borderRadius: 10, transform: 'rotate(45deg)',
-          background: 'linear-gradient(135deg,' + col + '44,rgba(0,0,0,.3))', border: '1px solid ' + col + '99',
+          flex: 'none', width: 42, height: 42, borderRadius: 11, overflow: 'hidden',
+          background: 'linear-gradient(135deg,' + col + '2e,rgba(0,0,0,.34))', border: '1px solid ' + col + '88',
         },
         wrapStyle: {
           display: 'flex', alignItems: 'center', gap: 12, padding: '11px 13px', borderRadius: 14,
