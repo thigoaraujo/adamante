@@ -570,7 +570,7 @@
       var owned = st.gearOwned.indexOf(i) >= 0, equipped = st.gearEquipped.indexOf(i) >= 0;
       var col = RAR[g.rar], afford = st.gold >= g.cost;
       return {
-        nome: g.nome, tipo: g.tipo, meta: g.meta, rarLabel: RARL[g.rar],
+        nome: g.nome, tipo: g.tipo, meta: g.meta, rarLabel: RARL[g.rar], slot: g.slot,
         art: 'assets/art/gear_' + i + '.png',
         action: function () { app.toggleGear(i); },
         btnLabel: !owned ? g.cost + ' OURO' : equipped ? 'EQUIPADO' : 'EQUIPAR',
@@ -594,6 +594,8 @@
         },
       };
     });
+    var SLOT_ORDER = ['arma', 'elmo', 'peito', 'escudo', 'manto', 'luvas', 'botas', 'amuleto', 'anel'];
+    gearRows.sort(function (a, b) { return SLOT_ORDER.indexOf(a.slot) - SLOT_ORDER.indexOf(b.slot); });
 
     // ── cronômetro de estudo ─────────────────────────────────────────────────
     var tm = st.timer;
@@ -946,9 +948,11 @@
       goFadiga: function () { app.openRest(); },
 
       gearRows: gearRows, defBonus: app.defBonus(), critBonus: app.critBonus(),
-      gearNote: app.defBonus() || app.critBonus()
-        ? 'Equipado: +' + app.defBonus() + ' Defesa' + (app.critBonus() ? ' · +' + (app.critBonus() * 5) + '% crítico' : '')
-        : 'Nenhum equipamento. Compre com ouro para reforçar a Defesa.',
+      gearNote: (app.defBonus() || app.critBonus() || app.dmgBonus())
+        ? 'Equipado: +' + app.defBonus() + ' Defesa'
+          + (app.dmgBonus() ? ' · +' + app.dmgBonus() + ' dano' : '')
+          + (app.critBonus() ? ' · +' + (app.critBonus() * 5) + '% crítico' : '')
+        : 'Nenhum equipamento. Compre com ouro para reforçar Defesa, dano e crítico.',
       attrRows: attrRows, radarPts: radarPts, radarLabels: radarLabels,
       radarNote: st.fatigue >= 3 ? 'violeta = enfraquecido pela Fadiga' : cls.prim + ' é o seu atributo primário',
       radarNoteStyle: { fontSize: 10.5, color: st.fatigue >= 3 ? '#aebdd8' : '#f0cd85' },

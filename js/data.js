@@ -78,6 +78,20 @@
     { nome: 'Manto de Cinzas', tipo: 'Manto', slot: 'manto', meta: '+2 Defesa', rar: 'incomum', def: 2, crit: 0, cost: 200 },
     { nome: 'Grevas de Ferro', tipo: 'Botas', slot: 'botas', meta: '+2 Defesa', rar: 'incomum', def: 2, crit: 0, cost: 190 },
     { nome: 'Anel de Precisão', tipo: 'Anel', slot: 'anel', meta: '+10% crítico', rar: 'rara', def: 0, crit: 2, cost: 380 },
+    // armas (slot 'arma'): dão dano nas cartas de ataque no combate
+    { nome: 'Espada Longa', tipo: 'Arma', slot: 'arma', meta: '+3 dano', rar: 'incomum', def: 0, crit: 0, dmg: 3, cost: 260 },
+    { nome: 'Machado de Guerra', tipo: 'Arma', slot: 'arma', meta: '+4 dano', rar: 'rara', def: 0, crit: 0, dmg: 4, cost: 380 },
+    { nome: 'Adaga Afiada', tipo: 'Arma', slot: 'arma', meta: '+2 dano · +5% crítico', rar: 'rara', def: 0, crit: 1, dmg: 2, cost: 300 },
+    { nome: 'Montante', tipo: 'Arma', slot: 'arma', meta: '+5 dano', rar: 'rara', def: 0, crit: 0, dmg: 5, cost: 560 },
+    { nome: 'Cimitarra', tipo: 'Arma', slot: 'arma', meta: '+3 dano', rar: 'incomum', def: 0, crit: 0, dmg: 3, cost: 280 },
+    { nome: 'Maça Estrela', tipo: 'Arma', slot: 'arma', meta: '+4 dano', rar: 'rara', def: 0, crit: 0, dmg: 4, cost: 360 },
+    { nome: 'Lâmina Demoníaca', tipo: 'Arma', slot: 'arma', meta: '+5 dano · +5% crítico', rar: 'epica', def: 0, crit: 1, dmg: 5, cost: 720 },
+    // mais armadura e joias
+    { nome: 'Chapéu de Mago', tipo: 'Elmo', slot: 'elmo', meta: '+1 Defesa · +5% crítico', rar: 'rara', def: 1, crit: 1, dmg: 0, cost: 260 },
+    { nome: 'Armadura Dracônica', tipo: 'Peito', slot: 'peito', meta: '+5 Defesa', rar: 'epica', def: 5, crit: 0, dmg: 0, cost: 720 },
+    { nome: 'Escudo Kite', tipo: 'Escudo', slot: 'escudo', meta: '+3 Defesa', rar: 'incomum', def: 3, crit: 0, dmg: 0, cost: 300 },
+    { nome: 'Amuleto Dourado', tipo: 'Amuleto', slot: 'amuleto', meta: '+5% crítico', rar: 'rara', def: 0, crit: 1, dmg: 0, cost: 320 },
+    { nome: 'Anel de Ferro', tipo: 'Anel', slot: 'anel', meta: '+1 Defesa', rar: 'incomum', def: 1, crit: 0, dmg: 0, cost: 200 },
   ];
 
   var TRADES = [

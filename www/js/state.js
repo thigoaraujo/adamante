@@ -163,6 +163,7 @@
   P.hpMax = function () { return C.pvMaximo(this.state.level, mod(this.effective('CON')), this.cls().id); };
   P.defBonus = function () { var s = 0; this.state.gearEquipped.forEach(function (i) { s += GEAR[i].def; }); return s; };
   P.critBonus = function () { var s = 0; this.state.gearEquipped.forEach(function (i) { s += GEAR[i].crit; }); return s; };
+  P.dmgBonus = function () { var s = 0; this.state.gearEquipped.forEach(function (i) { s += (GEAR[i].dmg || 0); }); return s; };
   P.critThreshold = function () { return Math.max(2, C.limiarCritico(this.cls().id) - this.critBonus()); };
   P.isCrit = function (rolagem) { return rolagem >= this.critThreshold(); };
   P.defense = function () { return C.defesa(mod(this.effective('DES')), this.defBonus()); };
@@ -491,7 +492,7 @@
     if (!b || !b.playerCard) return;
     var pc = b.playerCard, ec = b.enemyCard, cls = this.cls();
     var pm = mod(this.effective(cls.prim));
-    var raw = pc.dano ? pc.dano + pm * 2 : 0;
+    var raw = pc.dano ? pc.dano + pm * 2 + this.dmgBonus() : 0;
     var crit = raw > 0 && this.isCrit(Math.random() * 20 + 1);
     if (crit) raw *= 2;
     var heal = pc.cura ? pc.cura + mod(this.effective('SAB')) * 2 : 0;
@@ -582,7 +583,7 @@
     if (c.dano) {
       var m = mod(this.effective(this.cls().prim));
       var crit = this.isCrit(Math.random() * 20 + 1);
-      var dmg = C.danoFinal(c.dano, m, 14);
+      var dmg = C.danoFinal(c.dano + this.dmgBonus(), m, 14);
       if (crit) dmg *= 2;
       nb.ehp = Math.max(0, b.ehp - dmg);
       this.setState(function (s) { return { impact: s.impact + 1 }; });
