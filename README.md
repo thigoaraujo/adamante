@@ -16,8 +16,9 @@ python -m http.server 8099
 # depois: http://127.0.0.1:8099/index.html
 ```
 
-- `index.html` — a página de apresentação, com os dois aparelhos (iPhone 402×874 e Android 412×892).
-  Cada moldura roda uma sessão independente do app, em `<iframe>`.
+- `index.html` — a página de apresentação (portfólio): hero, showcase das classes, um aparelho
+  em 3D com prévia ao vivo do app num `<iframe>`, grade de recursos e instalação. Responsiva,
+  com animação de scroll (IntersectionObserver); o aparelho escala por JS para caber no mobile.
 - `app.html` — o app sozinho, em tela cheia. É este arquivo que se empacota num WebView.
 
 ### Parâmetros de URL do `app.html`
