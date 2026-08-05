@@ -170,10 +170,12 @@ declaração entra com `!important` numa folha própria.
   por `id` (`cls_<classe>`, `card_<id>`, `mon_sentinela`) e renderizados com `image-rendering`
   pixelado (classe `.adm-art`). As cartas também têm ícone na mão de batalha e nos dois lados
   do duelo do Confronto.
-- **Seletor de aparência** — cada classe tem quatro personagens (variações de gênero e raça:
-  guerreira, goblin, feiticeira, etc.), escolhíveis no onboarding e trocáveis na aba Perfil.
-  A escolha (`state.portraits`) persiste no `localStorage` e vale no herói, no carrossel e na
-  batalha. Definido em `data.js → PORTRAITS`.
+- **Seletor de aparência com desbloqueio** — cada classe tem quatro personagens (variações de
+  gênero e raça: guerreira, goblin, feiticeira, etc.). Só a primeira vem grátis; as outras
+  desbloqueiam com **ouro** (250 e 600) ou **concluindo uma missão épica** (`data.js →
+  LOOK_UNLOCK`). A raça é permanente: **trocar de aparência exige recomeçar o personagem do
+  zero** — os desbloqueios já conquistados permanecem. Escolha no onboarding, gestão na aba
+  Perfil. Estado em `state.portraits`/`unlockedLooks`, persistido no `localStorage`.
 
 ## Licença de conteúdo
 

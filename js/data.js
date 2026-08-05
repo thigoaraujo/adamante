@@ -107,6 +107,14 @@
   function portraitArt(classeId, idx) {
     return idx ? 'assets/art/cls_' + classeId + '_' + idx + '.png' : 'assets/art/cls_' + classeId + '.png';
   }
+  // desbloqueio de cada aparência: a primeira é grátis; as outras custam ouro
+  // ou exigem concluir uma missão épica. A escolha é permanente por personagem.
+  var LOOK_UNLOCK = [
+    { kind: 'free', label: '' },
+    { kind: 'gold', cost: 250, label: '250 ouro' },
+    { kind: 'gold', cost: 600, label: '600 ouro' },
+    { kind: 'epic', label: 'Missão épica' },
+  ];
 
   // ── guilda: convite por link e primeira meta coletiva (§15, §24 v3) ──────────
   var GUILD_INVITE = 'adamante.app/entrar/7F3QK9';
@@ -123,7 +131,7 @@
     STUDY: STUDY, EPIC_PRESETS: EPIC_PRESETS, EPIC: EPIC,
     GUILD_INVITE: GUILD_INVITE, GUILD_GOALS: GUILD_GOALS,
     REST: REST, WEEKDAYS: WEEKDAYS, RAR_ORDER: RAR_ORDER, REFORGE: REFORGE,
-    PORTRAITS: PORTRAITS, portraitArt: portraitArt,
+    PORTRAITS: PORTRAITS, portraitArt: portraitArt, LOOK_UNLOCK: LOOK_UNLOCK,
     mod: function (v) { return Math.floor((v - 10) / 2); },
     xpNeed: function (n) { return Math.round(80 * Math.pow(n, 1.5) / 10) * 10; },
   };

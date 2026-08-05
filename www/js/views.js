@@ -302,7 +302,7 @@
         <div style="display:flex;gap:9px;justify-content:center;flex-wrap:wrap">
           ${v.portraitOptions.map(function (o) {
             return `<div${on(o.pick)} style="${s(o.style)}">
-              <div style="${s(o.boxStyle)}"><img class="adm-art" src="${esc(o.art)}" alt="" style="padding:8%"></div>
+              <div style="${s(o.boxStyle)}"><img class="adm-art" src="${esc(o.art)}" alt="" style="${s(o.artStyle)}">${o.worn ? `<div style="position:absolute;top:3px;right:3px;width:15px;height:15px;border-radius:50%;background:#d9a544;display:flex;align-items:center;justify-content:center;font-size:10px;color:#191202;font-weight:800">✓</div>` : ''}${o.locked ? `<div style="${s(o.lockStyle)}"><div style="width:7px;height:7px;border-radius:2px;transform:rotate(45deg);background:#f0cd85"></div><div style="font-size:7.5px;letter-spacing:.04em;color:#f0cd85;text-align:center;line-height:1.1">${esc(o.reqLabel)}</div></div>` : ''}</div>
               <div style="${s(o.labelStyle)}">${esc(o.label)}</div>
             </div>`;
           }).join('')}
@@ -1218,14 +1218,17 @@
   <div style="font-size:11.5px;color:#75839a;margin-top:4px;margin-bottom:16px">${esc(v.charName)} · ${esc(v.clsName)} · nível ${esc(v.charLevel)}</div>
 
   <div style="font-size:11px;letter-spacing:.13em;color:#75839a;text-transform:uppercase;margin-bottom:9px">Aparência</div>
-  <div style="display:flex;gap:9px;margin-bottom:16px;flex-wrap:wrap">
+  <div style="font-size:11px;color:#8a97ab;line-height:1.5;margin-bottom:10px;text-wrap:pretty">${esc(v.looksLockHint)}</div>
+  <div style="display:flex;gap:9px;margin-bottom:10px;flex-wrap:wrap">
     ${v.portraitOptions.map(function (o) {
       return `<div${on(o.pick)} style="${s(o.style)}">
-        <div style="${s(o.boxStyle)}"><img class="adm-art" src="${esc(o.art)}" alt="" style="padding:8%"></div>
+        <div style="${s(o.boxStyle)}"><img class="adm-art" src="${esc(o.art)}" alt="" style="${s(o.artStyle)}">${o.worn ? `<div style="position:absolute;top:3px;right:3px;width:15px;height:15px;border-radius:50%;background:#d9a544;display:flex;align-items:center;justify-content:center;font-size:10px;color:#191202;font-weight:800">✓</div>` : ''}${o.locked ? `<div style="${s(o.lockStyle)}"><div style="width:7px;height:7px;border-radius:2px;transform:rotate(45deg);background:#f0cd85"></div><div style="font-size:7.5px;letter-spacing:.04em;color:#f0cd85;text-align:center;line-height:1.1">${esc(o.reqLabel)}</div></div>` : ''}</div>
         <div style="${s(o.labelStyle)}">${esc(o.label)}</div>
       </div>`;
     }).join('')}
   </div>
+  <div style="font-size:10.5px;color:#68768a;line-height:1.45;margin-bottom:10px;text-wrap:pretty">A raça é escolhida na criação e é permanente. Trocar de aparência exige recomeçar o personagem do zero.</div>
+  <div${on(v.askRestart)}${hv('background:rgba(217,165,68,.14)')} style="display:flex;align-items:center;justify-content:center;min-height:44px;border-radius:12px;border:1px solid rgba(217,165,68,.32);font-size:12.5px;font-weight:600;color:#f0cd85;cursor:pointer;margin-bottom:18px">Recomeçar personagem do zero</div>
 
   <div style="font-size:11px;letter-spacing:.13em;color:#75839a;text-transform:uppercase;margin-bottom:9px">Privacidade</div>
   <div style="display:flex;flex-direction:column;gap:2px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:16px;overflow:hidden;margin-bottom:16px">
@@ -1471,6 +1474,18 @@ ${v.restOpen ? `
       </div>
       <div${on(v.closeRest)}${hv('background:rgba(255,255,255,.1)')} style="margin-top:16px;min-height:50px;display:flex;align-items:center;justify-content:center;border-radius:13px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);font-family:'Bebas Neue',sans-serif;font-size:17px;letter-spacing:.08em;color:#e8eef5;cursor:pointer">FECHAR</div>
       <div style="height:6px"></div>
+    </div>
+  </div>` : ''}
+
+${v.restartAsk ? `
+  <div${on(v.cancelRestart)} style="position:absolute;inset:0;z-index:89;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:26px;background:rgba(4,6,12,.9);backdrop-filter:blur(12px);animation:admFadeIn .22s ease-out">
+    <div${on(v.noopStop)} style="width:100%;max-width:320px;background:linear-gradient(180deg,rgba(20,15,12,.99),rgba(12,9,8,.99));border:1px solid rgba(217,165,68,.34);border-radius:20px;padding:20px 18px;box-shadow:0 24px 60px rgba(0,0,0,.6);animation:admRise .32s cubic-bezier(.2,.8,.2,1);text-align:center">
+      <div style="font-family:'Bebas Neue',sans-serif;font-size:25px;letter-spacing:.03em;margin-bottom:8px">RECOMEÇAR DO ZERO?</div>
+      <div style="font-size:12.5px;line-height:1.55;color:#c2cfdd;margin-bottom:16px;text-wrap:pretty">A raça é permanente. Para trocar de aparência, o personagem volta ao começo — nível 1, sem ouro, missões zeradas. As aparências que você já desbloqueou continuam suas.</div>
+      <div style="display:flex;gap:9px">
+        <div${on(v.doRestart)}${hv('filter:brightness(1.08)')} style="flex:1;min-height:48px;display:flex;align-items:center;justify-content:center;border-radius:12px;background:linear-gradient(135deg,#d9a544,#b8842c);font-family:'Bebas Neue',sans-serif;font-size:17px;letter-spacing:.06em;color:#191202;cursor:pointer">RECOMEÇAR</div>
+        <div${on(v.cancelRestart)}${hv('color:#e8eef5')} style="min-height:48px;display:flex;align-items:center;padding:0 16px;border-radius:12px;border:1px solid rgba(255,255,255,.16);font-size:12.5px;color:#8a97ab;cursor:pointer">Cancelar</div>
+      </div>
     </div>
   </div>` : ''}`;
   }

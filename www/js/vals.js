@@ -13,7 +13,7 @@
   var GUILD_SIZE = D.GUILD_SIZE, MAJORITY = D.MAJORITY;
   var EPIC = D.EPIC, EPIC_PRESETS = D.EPIC_PRESETS, GUILD_GOALS = D.GUILD_GOALS, GUILD_INVITE = D.GUILD_INVITE;
   var REST = D.REST, WEEKDAYS = D.WEEKDAYS, RAR_ORDER = D.RAR_ORDER, REFORGE = D.REFORGE;
-  var PORTRAITS = D.PORTRAITS, portraitArt = D.portraitArt;
+  var PORTRAITS = D.PORTRAITS, portraitArt = D.portraitArt, LOOK_UNLOCK = D.LOOK_UNLOCK;
   var mod = C.mod, xpNeed = C.xpNeed;
 
   function vals(app) {
@@ -657,22 +657,42 @@
       clsName: cls.nome, clsPrim: cls.prim, charLevel: st.level,
       clsArt: portraitArt(cls.id, st.portraits[cls.id] || 0), monArt: 'assets/art/mon_sentinela.png',
       portraitOptions: PORTRAITS[cls.id].map(function (label, idx) {
-        var sel = (st.portraits[cls.id] || 0) === idx;
+        var unlocked = (st.unlockedLooks[cls.id] || [0]).indexOf(idx) >= 0;
+        var worn = (st.portraits[cls.id] || 0) === idx;
+        var req = LOOK_UNLOCK[idx] || { kind: 'free', label: '' };
         return {
           label: label, art: portraitArt(cls.id, idx),
-          pick: function () { app.setPortrait(cls.id, idx); },
+          locked: !unlocked, worn: worn,
+          reqLabel: req.kind === 'gold' ? req.label : req.kind === 'epic' ? 'Épica' : '',
+          pick: function () {
+            var isUn = (app.state.unlockedLooks[cls.id] || [0]).indexOf(idx) >= 0;
+            if (!isUn) { var ok = app.unlockLook(cls.id, idx); if (ok && app.state.screen === 'onboarding') app.setPortrait(cls.id, idx); return; }
+            if (app.state.screen === 'onboarding') { app.setPortrait(cls.id, idx); return; }
+            if ((app.state.portraits[cls.id] || 0) === idx) return;
+            app.askRestart();
+          },
           style: {
             width: 68, cursor: 'pointer', borderRadius: 12, padding: '6px 5px 5px', transition: 'all .2s',
-            background: sel ? 'rgba(217,165,68,.14)' : 'rgba(255,255,255,.04)',
-            border: '1px solid ' + (sel ? cls.cor + '99' : 'rgba(255,255,255,.1)'),
+            background: worn ? 'rgba(217,165,68,.14)' : 'rgba(255,255,255,.04)',
+            border: '1px solid ' + (worn ? cls.cor + '99' : unlocked ? 'rgba(255,255,255,.1)' : 'rgba(255,255,255,.07)'),
           },
-          boxStyle: { height: 54, borderRadius: 8, overflow: 'hidden', background: 'rgba(0,0,0,.28)' },
+          boxStyle: { position: 'relative', height: 54, borderRadius: 8, overflow: 'hidden', background: 'rgba(0,0,0,.28)' },
+          artStyle: { padding: '8%', filter: unlocked ? 'none' : 'grayscale(.8) brightness(.5)' },
+          lockStyle: {
+            position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column', alignItems: 'center',
+            justifyContent: 'center', gap: 2, background: 'rgba(4,6,12,.58)',
+          },
           labelStyle: {
             fontSize: 9, textAlign: 'center', marginTop: 4, whiteSpace: 'nowrap', overflow: 'hidden',
-            textOverflow: 'ellipsis', color: sel ? '#f0cd85' : '#8a97ab',
+            textOverflow: 'ellipsis', color: worn ? '#f0cd85' : unlocked ? '#c2cfdd' : '#68768a',
           },
         };
       }),
+      looksLockHint: 'A primeira aparência é grátis. As outras saem com ouro ou concluindo uma missão épica.',
+      restartAsk: st.restartAsk,
+      askRestart: function () { app.askRestart(); },
+      cancelRestart: function () { app.cancelRestart(); },
+      doRestart: function () { app.restartCharacter(); },
       isSplash: st.screen === 'splash', isLogin: st.screen === 'login',
       coverOn: !!st.cover,
 

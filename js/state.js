@@ -10,6 +10,7 @@
   var GUILD = D.GUILD, TRADES = D.TRADES, MAJORITY = D.MAJORITY;
   var STUDY = D.STUDY, EPIC = D.EPIC, EPIC_PRESETS = D.EPIC_PRESETS, GUILD_GOALS = D.GUILD_GOALS, REST = D.REST;
   var RAR = D.RAR, RARL = D.RARL, RAR_ORDER = D.RAR_ORDER, REFORGE = D.REFORGE;
+  var LOOK_UNLOCK = D.LOOK_UNLOCK;
   var mod = C.mod, xpNeed = C.xpNeed;
 
   // relógio do cronômetro: o protótipo comprime os 25 min num tempo de demonstração
@@ -59,6 +60,9 @@
       dupes: { c1: 6, c3: 5, c5: 5 },
       // aparência escolhida por classe (índice em PORTRAITS)
       portraits: { guerreiro: 0, ladino: 0, mago: 0, clerigo: 0 },
+      // desbloqueio: só a primeira aparência vem liberada; épica já concluída?
+      unlockedLooks: { guerreiro: [0], ladino: [0], mago: [0], clerigo: [0] },
+      epicDone: false, restartAsk: false,
     };
     this._t = [];
     this._timerInt = null;
@@ -367,7 +371,9 @@
     this.setState({
       epic: null, xp: res.xp, level: res.nivel,
       points: st.points + res.pontosGanhos + EPIC.points, gold: st.gold + EPIC.gold,
+      epicDone: true,
     });
+    this._persistUnlocks(this.state.unlockedLooks, true);
     this.gain('+' + e.xp + ' XP', '#d9a544');
     if (res.subiu) {
       this.later(function () { self.setState({ levelUp: true, lvFrom: fromLevel, wipe: null }); }, 640);
@@ -660,16 +666,71 @@
     this.toast('Reforja concluída', REFORGE.need + ' × ' + card.nome + ' viraram ' + (produced ? produced.nome : 'uma carta') + ' · ' + RARL[nextRar] + '. −' + cost + ' de ouro.', RAR[nextRar]);
   };
 
-  // ── seletor de aparência ──────────────────────────────────────────────────
+  // ── seletor de aparência (desbloqueio + escolha permanente) ───────────────
+  P.isLookUnlocked = function (classId, idx) {
+    return (this.state.unlockedLooks[classId] || [0]).indexOf(idx) >= 0;
+  };
   P.setPortrait = function (classId, idx) {
+    if (!this.isLookUnlocked(classId, idx)) return;   // não veste bloqueado
     var p = Object.assign({}, this.state.portraits); p[classId] = idx;
     this.setState({ portraits: p });
     try { localStorage.setItem('adamante.portraits', JSON.stringify(p)); } catch (e) { /* quota */ }
+  };
+  // devolve true se desbloqueou agora
+  P.unlockLook = function (classId, idx) {
+    if (this.isLookUnlocked(classId, idx)) return true;
+    var st = this.state, req = LOOK_UNLOCK[idx] || { kind: 'free' };
+    if (req.kind === 'gold') {
+      if (st.gold < req.cost) { this.toast('Ouro insuficiente', 'Faltam ' + (req.cost - st.gold) + ' de ouro para desbloquear.', '#d9a544'); return false; }
+      this.setState({ gold: st.gold - req.cost });
+      this._addUnlock(classId, idx);
+      this.toast('Aparência desbloqueada', '−' + req.cost + ' de ouro. Vestir uma nova raça exige recomeçar o personagem.', '#4fcbb4');
+      return true;
+    }
+    if (req.kind === 'epic') {
+      if (!st.epicDone) { this.toast('Bloqueado', 'Conclua uma missão épica para desbloquear esta aparência.', '#d9a544'); return false; }
+      this._addUnlock(classId, idx);
+      this.toast('Aparência desbloqueada', 'Recompensa por uma missão épica. Vestir uma nova raça exige recomeçar.', '#4fcbb4');
+      return true;
+    }
+    this._addUnlock(classId, idx);
+    return true;
+  };
+  P._addUnlock = function (classId, idx) {
+    var u = Object.assign({}, this.state.unlockedLooks);
+    u[classId] = (u[classId] || [0]).concat([idx]);
+    this.setState({ unlockedLooks: u });
+    this._persistUnlocks(u, this.state.epicDone);
+  };
+  P._persistUnlocks = function (unlocked, epicDone) {
+    try { localStorage.setItem('adamante.unlocks', JSON.stringify({ unlocked: unlocked, epicDone: epicDone })); } catch (e) { /* quota */ }
+  };
+  // trocar de aparência/raça só recomeçando o personagem do zero
+  P.askRestart = function () { this.setState({ restartAsk: true }); };
+  P.cancelRestart = function () { this.setState({ restartAsk: false }); };
+  P.restartCharacter = function () {
+    var alloc = {}; ATTRS.forEach(function (a) { alloc[a.key] = 0; });
+    this.stopTimerClock();
+    this.setState({
+      restartAsk: false, screen: 'onboarding', obStep: 0, cover: null, wipe: null,
+      level: 1, xp: 0, points: 0, gold: 0, streak: 0, fatigue: 0,
+      alloc: alloc, draft: {}, weekly: 0, medDone: false,
+      missions: this.state.missions.map(function (m) { return Object.assign({}, m, { done: false }); }),
+      epic: null, epicForm: false, restDays: [], restOpen: false,
+      dupes: { c1: 6, c3: 5, c5: 5 }, charName: '', battle: null, timer: null, levelUp: false,
+    });
+    this.toast('Personagem recomeçado', 'Do zero. As aparências que você desbloqueou continuam disponíveis.', '#7f8ec0');
   };
   P.loadPortraits = function () {
     try {
       var raw = localStorage.getItem('adamante.portraits');
       if (raw) this.state.portraits = Object.assign({}, this.state.portraits, JSON.parse(raw));
+      var u = localStorage.getItem('adamante.unlocks');
+      if (u) {
+        var d = JSON.parse(u);
+        if (d && d.unlocked) this.state.unlockedLooks = Object.assign({}, this.state.unlockedLooks, d.unlocked);
+        if (d && d.epicDone) this.state.epicDone = true;
+      }
     } catch (e) { /* corrompido ou indisponível */ }
   };
 
