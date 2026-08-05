@@ -36,7 +36,7 @@
     -webkit-mask-image:linear-gradient(180deg,#000,transparent 70%);
     mask-image:linear-gradient(180deg,#000,transparent 70%);
   }
-  .wrap{max-width:1040px; margin:0 auto; padding:0 24px}
+  .wrap{max-width:1040px; margin:0 auto; padding:0 24px; position:relative}
   .disp{font-family:'Bebas Neue',sans-serif; letter-spacing:.03em; line-height:.95; text-wrap:balance}
   .eyebrow{font-size:11px; letter-spacing:.22em; text-transform:uppercase; color:var(--gold)}
   a{color:var(--blue); text-decoration:none}
@@ -111,25 +111,14 @@
   .cls .pr{font-size:10px; letter-spacing:.1em; color:var(--dim); text-transform:uppercase; margin-top:2px}
   @media (max-width:520px){ .classes{grid-template-columns:repeat(2,1fr)} }
 
-  /* ── galeria de personagens e armas (espelhados) ──────────────── */
-  .gallery{display:flex;flex-wrap:wrap;gap:14px 26px;justify-content:center;align-items:flex-end;margin-bottom:34px}
-  .arsenal{display:flex;flex-wrap:wrap;gap:12px 22px;justify-content:center}
-  .spr{display:flex;flex-direction:column;align-items:center}
-  .spr .st{display:flex;align-items:flex-start;justify-content:center}
-  .spr img{image-rendering:pixelated;image-rendering:crisp-edges;filter:drop-shadow(0 5px 10px rgba(0,0,0,.6));
-    -webkit-box-reflect:below 3px linear-gradient(transparent 52%,rgba(255,255,255,.16));
-    animation:floatY 5.5s ease-in-out infinite;animation-delay:calc(var(--i,0)*-0.6s)}
-  .spr .nm{font-family:'Bebas Neue',sans-serif;font-size:15px;letter-spacing:.05em;color:#d3dbe6}
-  .spr .rl{font-size:9px;letter-spacing:.12em;text-transform:uppercase;margin-top:1px}
-  .gallery .spr .st{height:150px} .gallery .spr img{width:94px;height:94px}
-  .gallery .spr .nm{margin-top:2px}
-  .arsenal .spr .st{height:96px} .arsenal .spr img{width:58px;height:58px;-webkit-box-reflect:below 2px linear-gradient(transparent 48%,rgba(255,255,255,.14))}
-  .arsenal .spr .nm{font-size:11.5px;color:#b3c0d1}
-  @media (prefers-reduced-motion:reduce){ .spr img{animation:none} }
-  @media (max-width:520px){
-    .gallery .spr .st{height:120px} .gallery .spr img{width:74px;height:74px}
-    .arsenal .spr .st{height:80px} .arsenal .spr img{width:48px;height:48px}
-  }
+  /* ── sprites decorativos (espelhados, só para decorar o fundo) ── */
+  .deco{position:absolute; pointer-events:none; z-index:-1; animation:floatY 8s ease-in-out infinite; animation-delay:calc(var(--i,0)*-1.3s)}
+  .deco img{display:block; image-rendering:pixelated; image-rendering:crisp-edges;
+    -webkit-box-reflect:below 4px linear-gradient(transparent 55%,rgba(255,255,255,.12));
+    filter:drop-shadow(0 10px 20px rgba(0,0,0,.55)); opacity:.20}
+  .deco img.mir{transform:scaleX(-1)}
+  @media (prefers-reduced-motion:reduce){ .deco{animation:none} }
+  @media (max-width:860px){ .deco{display:none} }
 
   /* ── showcase: um aparelho em 3D com prévia ao vivo ───────────── */
   .showcase{display:grid; grid-template-columns:1fr minmax(320px,auto); gap:20px 48px; align-items:center}
@@ -225,6 +214,11 @@
 
 <!-- ── hero ─────────────────────────────────────────────────────── -->
 <div class="wrap">
+  <div class="deco" style="top:20px;right:-8px;--i:0"><img src="assets/art/cls_mago.png" class="mir" style="width:158px"></div>
+  <div class="deco" style="top:250px;right:150px;--i:3"><img src="assets/art/gear_15.png" style="width:74px"></div>
+  <div class="deco" style="top:150px;right:270px;--i:1"><img src="assets/art/gear_13.png" class="mir" style="width:56px"></div>
+  <div class="deco" style="top:360px;right:6px;--i:4"><img src="assets/art/cls_guerreiro.png" style="width:120px"></div>
+  <div class="deco" style="top:470px;right:210px;--i:2"><img src="assets/art/gear_18.png" style="width:60px"></div>
   <section class="hero">
     <div class="badge reveal"><span class="dot"></span> Protótipo jogável · roda no navegador, offline</div>
     <h1 class="disp reveal" style="--i:1">RPG DE HÁBITO,<br>COM <span class="g">CONSEQUÊNCIA</span> REAL</h1>
@@ -245,6 +239,7 @@
 
 <!-- ── pilares ──────────────────────────────────────────────────── -->
 <div class="wrap">
+  <div class="deco" style="top:-30px;right:-14px;--i:2"><img src="assets/art/cls_ladino.png" class="mir" style="width:110px"></div>
   <section>
     <div class="sec-head reveal">
       <div class="eyebrow">Como o desenho pensa</div>
@@ -284,36 +279,6 @@
       <div class="cls reveal" style="--i:1;--c:#4fcbb4"><div class="art"><img src="assets/art/cls_ladino.png" alt="Ladino"></div><div class="nm">Ladino</div><div class="pr">Destreza</div></div>
       <div class="cls reveal" style="--i:2;--c:#6fc8ee"><div class="art"><img src="assets/art/cls_mago.png" alt="Mago"></div><div class="nm">Mago</div><div class="pr">Inteligência</div></div>
       <div class="cls reveal" style="--i:3;--c:#e8c46a"><div class="art"><img src="assets/art/cls_clerigo.png" alt="Clérigo"></div><div class="nm">Clérigo</div><div class="pr">Sabedoria</div></div>
-    </div>
-  </section>
-</div>
-
-<!-- ── galeria: personagens e armas (espelhados) ────────────────── -->
-<div class="wrap">
-  <section>
-    <div class="sec-head reveal">
-      <div class="eyebrow">Arte forjada, não decorativa</div>
-      <h2 class="disp">Heróis e arsenal</h2>
-      <p>Cada classe tem várias caras — gênero e raça — e o combate tem aço de verdade. Tudo em pixel art de licença livre, com as peças que você desbloqueia jogando.</p>
-    </div>
-    <div class="gallery reveal">
-      <div class="spr ch" style="--i:0"><div class="st"><img src="assets/art/cls_guerreiro.png" alt="Comandante"></div><div class="nm">Comandante</div><div class="rl" style="color:#e8c46a">Guerreiro</div></div>
-      <div class="spr ch" style="--i:3"><div class="st"><img src="assets/art/cls_guerreiro_1.png" alt="Mercenária"></div><div class="nm">Mercenária</div><div class="rl" style="color:#e8c46a">Guerreiro</div></div>
-      <div class="spr ch" style="--i:1"><div class="st"><img src="assets/art/cls_ladino.png" alt="Assassina"></div><div class="nm">Assassina</div><div class="rl" style="color:#4fcbb4">Ladino</div></div>
-      <div class="spr ch" style="--i:5"><div class="st"><img src="assets/art/cls_ladino_2.png" alt="Batedor Goblin"></div><div class="nm">Goblin</div><div class="rl" style="color:#4fcbb4">Ladino</div></div>
-      <div class="spr ch" style="--i:2"><div class="st"><img src="assets/art/cls_mago.png" alt="Arquimago"></div><div class="nm">Arquimago</div><div class="rl" style="color:#6fc8ee">Mago</div></div>
-      <div class="spr ch" style="--i:6"><div class="st"><img src="assets/art/cls_mago_1.png" alt="Feiticeira"></div><div class="nm">Feiticeira</div><div class="rl" style="color:#6fc8ee">Mago</div></div>
-      <div class="spr ch" style="--i:4"><div class="st"><img src="assets/art/cls_clerigo.png" alt="Anjo"></div><div class="nm">Anjo</div><div class="rl" style="color:#e8c46a">Clérigo</div></div>
-      <div class="spr ch" style="--i:7"><div class="st"><img src="assets/art/mon_sentinela.png" alt="Sentinela de Escória"></div><div class="nm">Sentinela</div><div class="rl" style="color:#d9a544">Monstro</div></div>
-    </div>
-    <div class="arsenal reveal" style="--i:1">
-      <div class="spr" style="--i:0"><div class="st"><img src="assets/art/gear_12.png" alt="Espada Longa"></div><div class="nm">Espada</div></div>
-      <div class="spr" style="--i:2"><div class="st"><img src="assets/art/gear_13.png" alt="Machado de Guerra"></div><div class="nm">Machado</div></div>
-      <div class="spr" style="--i:4"><div class="st"><img src="assets/art/gear_14.png" alt="Adaga"></div><div class="nm">Adaga</div></div>
-      <div class="spr" style="--i:1"><div class="st"><img src="assets/art/gear_16.png" alt="Cimitarra"></div><div class="nm">Cimitarra</div></div>
-      <div class="spr" style="--i:3"><div class="st"><img src="assets/art/gear_17.png" alt="Maça Estrela"></div><div class="nm">Maça</div></div>
-      <div class="spr" style="--i:5"><div class="st"><img src="assets/art/gear_15.png" alt="Montante"></div><div class="nm">Montante</div></div>
-      <div class="spr" style="--i:6"><div class="st"><img src="assets/art/gear_18.png" alt="Lâmina Demoníaca"></div><div class="nm" style="color:#d9a544">Lâmina Demoníaca</div></div>
     </div>
   </section>
 </div>
@@ -369,6 +334,8 @@
 
 <!-- ── recursos ─────────────────────────────────────────────────── -->
 <div class="wrap">
+  <div class="deco" style="top:-24px;right:-10px;--i:1"><img src="assets/art/gear_17.png" class="mir" style="width:66px"></div>
+  <div class="deco" style="top:6px;left:-18px;--i:4"><img src="assets/art/cls_clerigo.png" style="width:96px"></div>
   <section id="recursos">
     <div class="sec-head reveal">
       <div class="eyebrow">O que tem dentro</div>
